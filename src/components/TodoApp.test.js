@@ -3,6 +3,8 @@ import './TodoInput.js'
 import './TodoItem.js'
 import './TodoList.js'
 import { TodoApp } from './TodoApp.js'
+import { clearTodos } from '../service/storageService.js'
+import { config } from '../config.js'
 
 describe('TodoApp', () => {
   let container
@@ -10,11 +12,15 @@ describe('TodoApp', () => {
   beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
+    clearTodos()
+    localStorage.removeItem(config.storageKey)
   })
 
   afterEach(() => {
     document.body.removeChild(container)
     container = null
+    clearTodos()
+    localStorage.removeItem(config.storageKey)
   })
 
   it('renders the component', () => {

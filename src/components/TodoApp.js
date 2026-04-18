@@ -1,11 +1,10 @@
-export class TodoApp extends HTMLElement {
-  /** @type {Array<{id: number, text: string, completed: boolean}>} */
-  #todos = []
+import { todoFactory } from '../factory/todoFactory.js'
 
+export class TodoApp extends HTMLElement {
   /** @type {'all' | 'active' | 'completed'} */
   #filter = 'all'
 
-  #nextId = 1
+  #store = todoFactory()
 
   constructor() {
     super()
@@ -21,26 +20,19 @@ export class TodoApp extends HTMLElement {
   #bindEvents() {
     this.addEventListener('add', (e) => {
       e.stopPropagation()
-      const newTodo = {
-        id: this.#nextId++,
-        text: e.detail.text,
-        completed: false,
-      }
-      this.#todos.push(newTodo)
+      this.#store.create(e.detail.text)
       this.#updateList()
     })
 
     this.addEventListener('toggle', (e) => {
       e.stopPropagation()
-      this.#todos = this.#todos.map((todo) =>
-        todo.id === e.detail.id ? { ...todo, completed: !todo.completed } : todo
-      )
+      this.#store.toggle(e.detail.id)
       this.#updateList()
     })
 
     this.addEventListener('delete', (e) => {
       e.stopPropagation()
-      this.#todos = this.#todos.filter((todo) => todo.id !== e.detail.id)
+      this.#store.delete(e.detail.id)
       this.#updateList()
     })
 
@@ -56,13 +48,15 @@ export class TodoApp extends HTMLElement {
 
       const clearBtn = realTarget.closest('.clear-completed')
       if (clearBtn) {
-        this.#todos = this.#todos.filter((t) => !t.completed)
+        this.#store.clearCompleted()
         this.#updateList()
       }
     })
   }
 
   #render() {
+    const todos = this.#store.getAll()
+
     this.shadowRoot.innerHTML = `
       <style>
         .todoApp {
@@ -117,7 +111,7 @@ export class TodoApp extends HTMLElement {
           <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
           <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
         </div>
-        <todo-list filter="${this.#filter}" todos='${JSON.stringify(this.#todos)}'></todo-list>
+        <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}'></todo-list>
         <div class="footer" data-id="footer">
           <span class="item-count" data-id="itemCount"></span>
           <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
@@ -129,9 +123,10 @@ export class TodoApp extends HTMLElement {
   }
 
   #updateList() {
+    const todos = this.#store.getAll()
     const list = this.shadowRoot.querySelector('todo-list')
     if (list) {
-      list.update(this.#todos)
+      list.update(todos)
     }
     this.#populateFooter()
   }
@@ -140,10 +135,10 @@ export class TodoApp extends HTMLElement {
     const countEl = this.shadowRoot.querySelector('[data-id="itemCount"]')
     const clearBtn = this.shadowRoot.querySelector('[data-id="clearBtn"]')
 
-    const activeCount = this.#todos.filter((t) => !t.completed).length
+    const activeCount = this.#store.getActiveCount()
     countEl.textContent = `${activeCount} item${activeCount !== 1 ? 's' : ''} left`
 
-    const completedCount = this.#todos.filter((t) => t.completed).length
+    const completedCount = this.#store.getCompletedCount()
     clearBtn.style.display = completedCount > 0 ? 'inline' : 'none'
   }
 }
