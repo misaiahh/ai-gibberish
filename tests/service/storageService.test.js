@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { loadTodos, saveTodos, clearTodos } from './storageService.js'
-import { config } from '../config.js'
+import { loadTodos, saveTodos, clearTodos } from '../../src/service/storageService.js'
+import { config } from '../../src/config.js'
 
 describe('storageService', () => {
   beforeEach(() => {

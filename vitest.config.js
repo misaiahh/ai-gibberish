@@ -9,6 +9,6 @@ export default defineConfig({
       headless: true,
       instances: [{ browser: 'chromium' }],
     },
-    include: ['src/**/*.test.js'],
+    include: ['tests/**/*.test.js'],
   },
 })

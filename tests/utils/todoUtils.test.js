@@ -7,7 +7,7 @@ import {
   deleteTodo,
   filterTodos,
   getCompletedCount,
-} from '../utils/todoUtils.js'
+} from '../../src/utils/todoUtils.js'
 
 describe('generateId', () => {
   beforeEach(() => {

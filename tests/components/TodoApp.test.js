@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import './TodoInput.js'
-import './TodoItem.js'
-import './TodoList.js'
-import { TodoApp } from './TodoApp.js'
-import { clearTodos } from '../service/storageService.js'
-import { config } from '../config.js'
+import '../../src/components/TodoInput.js'
+import '../../src/components/TodoItem.js'
+import '../../src/components/TodoList.js'
+import { TodoApp } from '../../src/components/TodoApp.js'
+import { clearTodos } from '../../src/service/storageService.js'
+import { config } from '../../src/config.js'
 
 describe('TodoApp', () => {
   let container

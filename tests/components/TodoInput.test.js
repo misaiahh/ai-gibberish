@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { TodoInput } from './TodoInput.js'
+import { TodoInput } from '../../src/components/TodoInput.js'
 
 describe('TodoInput', () => {
   let container

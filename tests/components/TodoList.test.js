@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { TodoList } from './TodoList.js'
+import { TodoList } from '../../src/components/TodoList.js'
 
 describe('TodoList', () => {
   let container

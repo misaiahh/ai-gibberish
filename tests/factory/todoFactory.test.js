@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { todoFactory } from './todoFactory.js'
-import { clearTodos } from '../service/storageService.js'
-import { config } from '../config.js'
+import { todoFactory } from '../../src/factory/todoFactory.js'
+import { clearTodos } from '../../src/service/storageService.js'
+import { config } from '../../src/config.js'
 
 describe('todoFactory', () => {
   let store

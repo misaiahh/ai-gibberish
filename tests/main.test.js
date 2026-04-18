@@ -1,4 +1,4 @@
-import './main.js'
+import '../src/main.js'
 import { describe, it, expect } from 'vitest'
 
 describe('main.js', () => {

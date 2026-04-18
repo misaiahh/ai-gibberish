@@ -8,33 +8,6 @@ A vanilla JavaScript Todo application built with Web Components and Shadow DOM.
 - **Vite** (build tool + dev server)
 - **Vitest** (testing, with Playwright browser environment)
 
-## Project Structure
-
-```
-src/
-  main.js              # Entry point — registers all custom elements
-  styles.css           # Global/document-level styles (body layout, host element)
-  config.js            # App configuration (storage type, storage key)
-  components/
-    TodoApp.js         # Root component — event routing, state management
-    TodoApp.test.js
-    TodoInput.js       # Input field + Add button
-    TodoInput.test.js
-    TodoItem.js        # Individual todo item (checkbox, text, delete button)
-    TodoItem.test.js
-    TodoList.js        # Renders a filtered list of TodoItem components
-    TodoList.test.js
-  factory/
-    todoFactory.js     # Todo store (create, delete, toggle, persist)
-    todoFactory.test.js
-  service/
-    storageService.js  # Session/LocalStorage persistence layer
-    storageService.test.js
-  utils/
-    todoUtils.js       # Standalone helpers (filter, count, id generation)
-    todoUtils.test.js
-```
-
 ## Configuration
 
 Edit `src/config.js` to choose storage backend:
@@ -118,10 +91,12 @@ Event handlers now call `#updateList()` instead of `#render()`, preserving the i
 - Snapshot tests verify shadow DOM structure
 - Focus is tracked via the host element (`todo-input`) rather than `document.activeElement`, since focus on shadow DOM inputs propagates to the host
 
-### State Management Extraction
+### State Management and Persistence
 
-Todo data operations were moved out of `TodoApp` into `todoFactory` — an isolated store that owns the todos array and manages ID generation. `TodoApp` delegates all data operations to the store.
+Todo data was extracted from `TodoApp` into `todoFactory` — an isolated store that owns the todos array, generates IDs, and handles all data operations (create, delete, toggle, clear completed). `TodoApp` delegates to this store instead of managing state directly.
 
-### Persistence Layer
+Every mutation automatically persists to `localStorage` or `sessionStorage` (configurable via `src/config.js`). When the app loads, existing todos are restored from storage and the ID counter resumes from the last stored value. A dedicated `storageService` module provides `loadTodos()`, `saveTodos()`, and `clearTodos()` for the persistence layer.
 
-A `storageService` module provides `loadTodos()`, `saveTodos()`, and `clearTodos()` backed by either `localStorage` or `sessionStorage`. The `todoFactory` integrates this service to persist every mutation (create, delete, toggle, clearCompleted) and to restore state on init. Storage backend is configurable via `src/config.js`.
+### Test Organization
+
+Test files were restructured to mirror the `src/` directory layout. Component tests live in `tests/components/`, factory tests in `tests/factory/`, service tests in `tests/service/`, and utility tests in `tests/utils/`. This makes it easy to locate tests and keeps the project structure consistent between source and test directories.
