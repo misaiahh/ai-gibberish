@@ -36,32 +36,32 @@ export class TodoItem extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        .todo-item {
+        .todoItem {
           display: flex;
           align-items: center;
           gap: 10px;
           padding: 10px 8px;
           border-bottom: 1px solid #f0f0f0;
         }
-        .todo-item:last-child {
+        .todoItem:last-child {
           border-bottom: none;
         }
-        .todo-item input[type="checkbox"] {
+        .todoItem input[type="checkbox"] {
           width: 18px;
           height: 18px;
           cursor: pointer;
           accent-color: #4a90d9;
         }
-        .todo-item .todo-text {
+        .todoText {
           flex: 1;
           font-size: 14px;
           color: #333;
         }
-        .todo-item .todo-text.completed {
+        .todoText.completed {
           text-decoration: line-through;
           color: #aaa;
         }
-        .todo-item .delete-btn {
+        .deleteBtn {
           background: none;
           border: none;
           color: #e74c3c;
@@ -71,20 +71,20 @@ export class TodoItem extends HTMLElement {
           opacity: 0.5;
           transition: opacity 0.2s;
         }
-        .todo-item .delete-btn:hover {
+        .deleteBtn:hover {
           opacity: 1;
         }
       </style>
-      <label class="todo-item">
-        <input type="checkbox" ${completed ? 'checked' : ''} />
-        <span class="todo-text ${completed ? 'completed' : ''}">${text}</span>
-        <button class="delete-btn" title="Delete">&times;</button>
+      <label class="todoItem">
+        <input type="checkbox" data-id="checkbox" ${completed ? 'checked' : ''} />
+        <span class="todoText ${completed ? 'completed' : ''}" data-id="todoText">${text}</span>
+        <button class="deleteBtn" data-id="deleteBtn" title="Delete">&times;</button>
       </label>
     `
 
-    this.checkbox = this.shadowRoot.querySelector('input[type="checkbox"]')
-    this.textSpan = this.shadowRoot.querySelector('.todo-text')
-    this.deleteBtn = this.shadowRoot.querySelector('.delete-btn')
+    this.checkbox = this.shadowRoot.querySelector('[data-id="checkbox"]')
+    this.textSpan = this.shadowRoot.querySelector('[data-id="todoText"]')
+    this.deleteBtn = this.shadowRoot.querySelector('[data-id="deleteBtn"]')
 
     this.checkbox.addEventListener('change', () => {
       this.dispatchEvent(

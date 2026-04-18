@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { TodoItem } from './TodoItem.js'
 
 describe('TodoItem', () => {
@@ -30,7 +30,7 @@ describe('TodoItem', () => {
     el.setAttribute('text', 'Buy milk')
     container.appendChild(el)
 
-    const textSpan = el.shadowRoot.querySelector('.todo-text')
+    const textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
     expect(textSpan.textContent).toBe('Buy milk')
   })
 
@@ -40,7 +40,7 @@ describe('TodoItem', () => {
     el.setAttribute('completed', 'true')
     container.appendChild(el)
 
-    const textSpan = el.shadowRoot.querySelector('.todo-text')
+    const textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
     expect(textSpan.classList.contains('completed')).toBe(true)
   })
 
@@ -50,7 +50,7 @@ describe('TodoItem', () => {
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
-    const textSpan = el.shadowRoot.querySelector('.todo-text')
+    const textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
     expect(textSpan.classList.contains('completed')).toBe(false)
   })
 
@@ -69,7 +69,7 @@ describe('TodoItem', () => {
     el.setAttribute('text', 'Buy milk')
     container.appendChild(el)
 
-    const deleteBtn = el.shadowRoot.querySelector('.delete-btn')
+    const deleteBtn = el.shadowRoot.querySelector('[data-id="deleteBtn"]')
     expect(deleteBtn).toBeTruthy()
     expect(deleteBtn.textContent).toBe('\u00d7')
   })
@@ -111,14 +111,14 @@ describe('TodoItem', () => {
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
-    let textSpan = el.shadowRoot.querySelector('.todo-text')
+     let textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
     expect(textSpan.textContent).toBe('Buy milk')
     expect(textSpan.classList.contains('completed')).toBe(false)
 
     el.setAttribute('text', 'Walk dog')
     el.setAttribute('completed', 'true')
 
-    textSpan = el.shadowRoot.querySelector('.todo-text')
+    textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
     expect(textSpan.textContent).toBe('Walk dog')
     expect(textSpan.classList.contains('completed')).toBe(true)
   })
@@ -133,32 +133,32 @@ describe('TodoItem', () => {
     expect(el.shadowRoot.innerHTML).toMatchInlineSnapshot(`
       "
             <style>
-              .todo-item {
+              .todoItem {
                 display: flex;
                 align-items: center;
                 gap: 10px;
                 padding: 10px 8px;
                 border-bottom: 1px solid #f0f0f0;
               }
-              .todo-item:last-child {
+              .todoItem:last-child {
                 border-bottom: none;
               }
-              .todo-item input[type="checkbox"] {
+              .todoItem input[type="checkbox"] {
                 width: 18px;
                 height: 18px;
                 cursor: pointer;
                 accent-color: #4a90d9;
               }
-              .todo-item .todo-text {
+              .todoText {
                 flex: 1;
                 font-size: 14px;
                 color: #333;
               }
-              .todo-item .todo-text.completed {
+              .todoText.completed {
                 text-decoration: line-through;
                 color: #aaa;
               }
-              .todo-item .delete-btn {
+              .deleteBtn {
                 background: none;
                 border: none;
                 color: #e74c3c;
@@ -168,14 +168,14 @@ describe('TodoItem', () => {
                 opacity: 0.5;
                 transition: opacity 0.2s;
               }
-              .todo-item .delete-btn:hover {
+              .deleteBtn:hover {
                 opacity: 1;
               }
             </style>
-            <label class="todo-item">
-              <input type="checkbox">
-              <span class="todo-text ">Buy milk</span>
-              <button class="delete-btn" title="Delete">×</button>
+            <label class="todoItem">
+              <input type="checkbox" data-id="checkbox">
+              <span class="todoText " data-id="todoText">Buy milk</span>
+              <button class="deleteBtn" data-id="deleteBtn" title="Delete">×</button>
             </label>
           "
     `)

@@ -37,23 +37,20 @@ export class TodoList extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        .todo-list {
+        .todoList {
           list-style: none;
         }
       </style>
-      <ul class="todo-list"></ul>
+      <ul class="todoList" data-id="list"></ul>
     `
 
-    this.list = this.shadowRoot.querySelector('.todo-list')
+    this.list = this.shadowRoot.querySelector('[data-id="list"]')
 
     for (const todo of filtered) {
       const item = document.createElement('todo-item')
       item.setAttribute('id', String(todo.id))
       item.setAttribute('text', todo.text)
       item.setAttribute('completed', String(todo.completed))
-
-      item.addEventListener('toggle', () => {})
-      item.addEventListener('delete', () => {})
 
       this.list.appendChild(item)
     }

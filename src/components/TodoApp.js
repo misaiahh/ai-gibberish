@@ -27,7 +27,7 @@ export class TodoApp extends HTMLElement {
         completed: false,
       }
       this.#todos.push(newTodo)
-      this.#render()
+      this.#updateList()
     })
 
     this.addEventListener('toggle', (e) => {
@@ -35,64 +35,18 @@ export class TodoApp extends HTMLElement {
       this.#todos = this.#todos.map((todo) =>
         todo.id === e.detail.id ? { ...todo, completed: !todo.completed } : todo
       )
-      this.#render()
+      this.#updateList()
     })
 
     this.addEventListener('delete', (e) => {
       e.stopPropagation()
       this.#todos = this.#todos.filter((todo) => todo.id !== e.detail.id)
-      this.#render()
+      this.#updateList()
     })
 
-    // Event delegation for shadow DOM interactions
     this.shadowRoot.addEventListener('click', (e) => {
-      const path = e.composedPath()
-      const realTarget = path[0]
+      const realTarget = e.target
 
-      // Handle checkbox toggles directly in the click handler
-      const checkbox = realTarget.closest('input[type="checkbox"]')
-      if (checkbox) {
-        // Use composedPath to cross shadow DOM boundaries and find the label
-        const labelIndex = path.findIndex(el => el.tagName === 'LABEL')
-        if (labelIndex !== -1) {
-          const label = path[labelIndex]
-          const siblings = Array.from(label.parentNode.children)
-          const itemIndex = siblings.indexOf(label)
-          const list = this.shadowRoot.querySelector('todo-list')
-          const todos = JSON.parse(list.getAttribute('todos') || '[]')
-          if (todos[itemIndex]) {
-            todos[itemIndex] = {
-              ...todos[itemIndex],
-              completed: checkbox.checked,
-            }
-            this.#todos = todos
-            this.#render()
-          }
-        }
-        return
-      }
-
-      // Handle delete button clicks directly in the click handler
-      const deleteBtn = realTarget.closest('.delete-btn')
-      if (deleteBtn) {
-        const labelIndex = path.findIndex(el => el.tagName === 'LABEL')
-        if (labelIndex !== -1) {
-          const label = path[labelIndex]
-          const siblings = Array.from(label.parentNode.children)
-          const itemIndex = siblings.indexOf(label)
-          const list = this.shadowRoot.querySelector('todo-list')
-          const todos = JSON.parse(list.getAttribute('todos') || '[]')
-          if (todos[itemIndex]) {
-            this.#todos = this.#todos.filter(
-              (t) => t.id !== todos[itemIndex].id
-            )
-            this.#render()
-          }
-        }
-        return
-      }
-
-      // Handle filter buttons
       const filterBtn = realTarget.closest('[data-filter]')
       if (filterBtn) {
         this.#filter = filterBtn.dataset.filter
@@ -100,11 +54,10 @@ export class TodoApp extends HTMLElement {
         return
       }
 
-      // Handle clear-completed button
       const clearBtn = realTarget.closest('.clear-completed')
       if (clearBtn) {
         this.#todos = this.#todos.filter((t) => !t.completed)
-        this.#render()
+        this.#updateList()
       }
     })
   }
@@ -112,26 +65,26 @@ export class TodoApp extends HTMLElement {
   #render() {
     this.shadowRoot.innerHTML = `
       <style>
-        .todo-app {
+        .todoApp {
           background: #fff;
           border-radius: 8px;
           box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
           padding: 24px;
         }
-        .todo-app h1 {
+        .todoApp h1 {
           font-size: 24px;
           font-weight: 700;
           text-align: center;
           margin-bottom: 20px;
           color: #333;
         }
-        .todo-filters {
+        .filterContainer {
           display: flex;
           gap: 6px;
           margin-bottom: 12px;
           justify-content: center;
         }
-        .todo-filters button {
+        .filterContainer button {
           padding: 6px 14px;
           border: 1px solid #ddd;
           background: #fff;
@@ -140,12 +93,12 @@ export class TodoApp extends HTMLElement {
           cursor: pointer;
           transition: all 0.2s;
         }
-        .todo-filters button.active {
+        .filterContainer button.active {
           background: #4a90d9;
           color: #fff;
           border-color: #4a90d9;
         }
-        .todo-footer {
+        .footer {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -156,26 +109,36 @@ export class TodoApp extends HTMLElement {
           margin-top: 4px;
         }
       </style>
-      <h1>Todo App</h1>
-      <todo-input></todo-input>
-      <div class="todo-filters">
-        <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
-        <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
-        <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
-      </div>
-      <todo-list filter="${this.#filter}" todos='${JSON.stringify(this.#todos)}'></todo-list>
-      <div class="todo-footer">
-        <span class="item-count"></span>
-        <button class="clear-completed" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
+      <div class="todoApp">
+        <h1>Todo App</h1>
+        <todo-input></todo-input>
+        <div class="filterContainer" data-id="filters">
+          <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
+          <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
+          <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
+        </div>
+        <todo-list filter="${this.#filter}" todos='${JSON.stringify(this.#todos)}'></todo-list>
+        <div class="footer" data-id="footer">
+          <span class="item-count" data-id="itemCount"></span>
+          <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
+        </div>
       </div>
     `
 
     this.#populateFooter()
   }
 
+  #updateList() {
+    const list = this.shadowRoot.querySelector('todo-list')
+    if (list) {
+      list.update(this.#todos)
+    }
+    this.#populateFooter()
+  }
+
   #populateFooter() {
-    const countEl = this.shadowRoot.querySelector('.item-count')
-    const clearBtn = this.shadowRoot.querySelector('.clear-completed')
+    const countEl = this.shadowRoot.querySelector('[data-id="itemCount"]')
+    const clearBtn = this.shadowRoot.querySelector('[data-id="clearBtn"]')
 
     const activeCount = this.#todos.filter((t) => !t.completed).length
     countEl.textContent = `${activeCount} item${activeCount !== 1 ? 's' : ''} left`

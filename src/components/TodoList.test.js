@@ -26,9 +26,8 @@ describe('TodoList', () => {
     const el = document.createElement('todo-list')
     container.appendChild(el)
 
-    const list = el.shadowRoot.querySelector('ul')
+    const list = el.shadowRoot.querySelector('[data-id="list"]')
     expect(list).toBeTruthy()
-    expect(list.classList.contains('todo-list')).toBe(true)
   })
 
   it('renders todo items from todos attribute', () => {

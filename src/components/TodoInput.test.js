@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { TodoInput } from './TodoInput.js'
 
 describe('TodoInput', () => {
@@ -26,8 +26,8 @@ describe('TodoInput', () => {
     const el = document.createElement('todo-input')
     container.appendChild(el)
 
-    const input = el.shadowRoot.querySelector('input')
-    const button = el.shadowRoot.querySelector('button')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
+    const button = el.shadowRoot.querySelector('[data-id="button"]')
 
     expect(input).toBeTruthy()
     expect(button).toBeTruthy()
@@ -39,7 +39,7 @@ describe('TodoInput', () => {
     el.setAttribute('placeholder', 'Add a task')
     container.appendChild(el)
 
-    const input = el.shadowRoot.querySelector('input')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
     expect(input.placeholder).toBe('Add a task')
   })
 
@@ -50,7 +50,7 @@ describe('TodoInput', () => {
     const handler = vi.fn()
     el.addEventListener('add', handler)
 
-    const input = el.shadowRoot.querySelector('input')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
     input.value = 'Buy milk'
     el.button.click()
 
@@ -65,7 +65,7 @@ describe('TodoInput', () => {
     const handler = vi.fn()
     el.addEventListener('add', handler)
 
-    const input = el.shadowRoot.querySelector('input')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
     input.value = 'Buy milk'
 
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
@@ -84,7 +84,7 @@ describe('TodoInput', () => {
     el.button.click()
     expect(handler).not.toHaveBeenCalled()
 
-    const input = el.shadowRoot.querySelector('input')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
     input.value = '   '
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
     expect(handler).not.toHaveBeenCalled()
@@ -94,7 +94,7 @@ describe('TodoInput', () => {
     const el = document.createElement('todo-input')
     container.appendChild(el)
 
-    const input = el.shadowRoot.querySelector('input')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
     input.value = 'Buy milk'
     el.button.click()
 
@@ -108,7 +108,7 @@ describe('TodoInput', () => {
     el.value = 'Hello'
     expect(el.value).toBe('Hello')
 
-    const input = el.shadowRoot.querySelector('input')
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
     expect(input.value).toBe('Hello')
   })
 
@@ -119,11 +119,11 @@ describe('TodoInput', () => {
     expect(el.shadowRoot.innerHTML).toMatchInlineSnapshot(`
       "
             <style>
-              .todo-input {
+              .inputContainer {
                 display: flex;
                 gap: 8px;
               }
-              .todo-input input {
+              .inputContainer input {
                 flex: 1;
                 padding: 10px 12px;
                 border: 1px solid #ddd;
@@ -132,10 +132,10 @@ describe('TodoInput', () => {
                 outline: none;
                 transition: border-color 0.2s;
               }
-              .todo-input input:focus {
+              .inputContainer input:focus {
                 border-color: #4a90d9;
               }
-              .todo-input button {
+              .addBtn {
                 padding: 10px 18px;
                 background: #4a90d9;
                 color: #fff;
@@ -146,13 +146,13 @@ describe('TodoInput', () => {
                 cursor: pointer;
                 transition: background 0.2s;
               }
-              .todo-input button:hover {
+              .addBtn:hover {
                 background: #357abd;
               }
             </style>
-            <div class="todo-input">
-              <input type="text" placeholder="What needs to be done?">
-              <button>Add</button>
+            <div class="inputContainer">
+              <input type="text" placeholder="What needs to be done?" data-id="input">
+              <button class="addBtn" data-id="button">Add</button>
             </div>
           "
     `)

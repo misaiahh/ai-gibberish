@@ -45,7 +45,7 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    const buttons = el.shadowRoot.querySelectorAll('.todo-filters button')
+    const buttons = el.shadowRoot.querySelectorAll('[data-id="filters"] button')
     expect(buttons).toHaveLength(3)
     expect(buttons[0].textContent.trim()).toBe('All')
     expect(buttons[1].textContent.trim()).toBe('Active')
@@ -77,7 +77,7 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    const footer = el.shadowRoot.querySelector('.todo-footer')
+    const footer = el.shadowRoot.querySelector('[data-id="footer"]')
     expect(footer).toBeTruthy()
   })
 
@@ -85,7 +85,7 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    const count = el.shadowRoot.querySelector('.item-count')
+    const count = el.shadowRoot.querySelector('[data-id="itemCount"]')
     expect(count.textContent).toContain('item')
     expect(count.textContent).toContain('left')
   })
@@ -94,7 +94,6 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    // Simulate adding a todo
     el.dispatchEvent(
       new CustomEvent('add', {
         detail: { text: 'Buy milk' },
@@ -113,7 +112,6 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    // Add a todo first
     el.dispatchEvent(
       new CustomEvent('add', {
         detail: { text: 'Buy milk' },
@@ -121,7 +119,6 @@ describe('TodoApp', () => {
       })
     )
 
-    // Toggle the first todo (id=1 from Date.now() on first add)
     const firstId = JSON.parse(
       el.shadowRoot.querySelector('todo-list').getAttribute('todos')
     )[0].id
@@ -143,7 +140,6 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    // Add a todo first
     el.dispatchEvent(
       new CustomEvent('add', {
         detail: { text: 'Buy milk' },
@@ -171,7 +167,6 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    // Add some todos
     el.dispatchEvent(
       new CustomEvent('add', {
         detail: { text: 'Buy milk' },
@@ -196,7 +191,6 @@ describe('TodoApp', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    // Add two todos and mark one as completed
     el.dispatchEvent(
       new CustomEvent('add', {
         detail: { text: 'Buy milk' },
@@ -221,7 +215,6 @@ describe('TodoApp', () => {
       })
     )
 
-    // Verify both todos exist, one completed
     let todos = JSON.parse(
       el.shadowRoot.querySelector('todo-list').getAttribute('todos')
     )
@@ -229,12 +222,10 @@ describe('TodoApp', () => {
     expect(todos[0].completed).toBe(true)
     expect(todos[1].completed).toBe(false)
 
-    // Click the clear-completed button via the shadow root (event delegation)
-    const clearBtn = el.shadowRoot.querySelector('.clear-completed')
+    const clearBtn = el.shadowRoot.querySelector('[data-id="clearBtn"]')
     expect(clearBtn.style.display).not.toBe('none')
     clearBtn.click()
 
-    // Only the uncompleted todo should remain
     todos = JSON.parse(
       el.shadowRoot.querySelector('todo-list').getAttribute('todos')
     )
@@ -242,14 +233,33 @@ describe('TodoApp', () => {
     expect(todos[0].completed).toBe(false)
   })
 
+  it('keeps focus on input after pressing Enter', () => {
+    const el = document.createElement('todo-app')
+    container.appendChild(el)
+
+    const todoInput = el.shadowRoot.querySelector('todo-input')
+    const input = todoInput.shadowRoot.querySelector('[data-id="input"]')
+    input.value = 'Buy milk'
+
+    input.focus()
+    expect(input.matches(':focus')).toBe(true)
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+    // The input should still be focused and cleared since parent doesn't destroy it
+    const inputAfter = el.shadowRoot.querySelector('todo-input')
+      .shadowRoot.querySelector('[data-id="input"]')
+    expect(inputAfter.value).toBe('')
+    expect(inputAfter.matches(':focus')).toBe(true)
+  })
+
   it('updates item count when todos are added', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
-    const count = el.shadowRoot.querySelector('.item-count')
+    const count = el.shadowRoot.querySelector('[data-id="itemCount"]')
     expect(count.textContent).toContain('0 items left')
 
-    // Dispatch add event and verify state changes
     el.dispatchEvent(
       new CustomEvent('add', {
         detail: { text: 'Buy milk' },
@@ -257,8 +267,7 @@ describe('TodoApp', () => {
       })
     )
 
-    // Re-query count after DOM update
-    const countAfterFirst = el.shadowRoot.querySelector('.item-count')
+    const countAfterFirst = el.shadowRoot.querySelector('[data-id="itemCount"]')
     expect(countAfterFirst.textContent).toContain('1 item left')
 
     el.dispatchEvent(
@@ -268,37 +277,37 @@ describe('TodoApp', () => {
       })
     )
 
-    const countAfterSecond = el.shadowRoot.querySelector('.item-count')
+    const countAfterSecond = el.shadowRoot.querySelector('[data-id="itemCount"]')
     expect(countAfterSecond.textContent).toContain('2 items left')
   })
 
-it('matches shadow DOM snapshot', () => {
+  it('matches shadow DOM snapshot', () => {
     const el = document.createElement('todo-app')
     container.appendChild(el)
 
     expect(el.shadowRoot.innerHTML).toMatchInlineSnapshot(`
       "
             <style>
-              .todo-app {
+              .todoApp {
                 background: #fff;
                 border-radius: 8px;
                 box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
                 padding: 24px;
               }
-              .todo-app h1 {
+              .todoApp h1 {
                 font-size: 24px;
                 font-weight: 700;
                 text-align: center;
                 margin-bottom: 20px;
                 color: #333;
               }
-              .todo-filters {
+              .filterContainer {
                 display: flex;
                 gap: 6px;
                 margin-bottom: 12px;
                 justify-content: center;
               }
-              .todo-filters button {
+              .filterContainer button {
                 padding: 6px 14px;
                 border: 1px solid #ddd;
                 background: #fff;
@@ -307,12 +316,12 @@ it('matches shadow DOM snapshot', () => {
                 cursor: pointer;
                 transition: all 0.2s;
               }
-              .todo-filters button.active {
+              .filterContainer button.active {
                 background: #4a90d9;
                 color: #fff;
                 border-color: #4a90d9;
               }
-              .todo-footer {
+              .footer {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -323,17 +332,19 @@ it('matches shadow DOM snapshot', () => {
                 margin-top: 4px;
               }
             </style>
-            <h1>Todo App</h1>
-            <todo-input></todo-input>
-            <div class="todo-filters">
-              <button data-filter="all" class="active">All</button>
-              <button data-filter="active" class="">Active</button>
-              <button data-filter="completed" class="">Completed</button>
-            </div>
-            <todo-list filter="all" todos="[]"></todo-list>
-            <div class="todo-footer">
-              <span class="item-count">0 items left</span>
-              <button class="clear-completed" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
+            <div class="todoApp">
+              <h1>Todo App</h1>
+              <todo-input></todo-input>
+              <div class="filterContainer" data-id="filters">
+                <button data-filter="all" class="active">All</button>
+                <button data-filter="active" class="">Active</button>
+                <button data-filter="completed" class="">Completed</button>
+              </div>
+              <todo-list filter="all" todos="[]"></todo-list>
+              <div class="footer" data-id="footer">
+                <span class="item-count" data-id="itemCount">0 items left</span>
+                <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
+              </div>
             </div>
           "
     `)

@@ -41,11 +41,11 @@ export class TodoInput extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        .todo-input {
+        .inputContainer {
           display: flex;
           gap: 8px;
         }
-        .todo-input input {
+        .inputContainer input {
           flex: 1;
           padding: 10px 12px;
           border: 1px solid #ddd;
@@ -54,10 +54,10 @@ export class TodoInput extends HTMLElement {
           outline: none;
           transition: border-color 0.2s;
         }
-        .todo-input input:focus {
+        .inputContainer input:focus {
           border-color: #4a90d9;
         }
-        .todo-input button {
+        .addBtn {
           padding: 10px 18px;
           background: #4a90d9;
           color: #fff;
@@ -68,21 +68,22 @@ export class TodoInput extends HTMLElement {
           cursor: pointer;
           transition: background 0.2s;
         }
-        .todo-input button:hover {
+        .addBtn:hover {
           background: #357abd;
         }
       </style>
-      <div class="todo-input">
-        <input type="text" placeholder="${placeholder}" />
-        <button>Add</button>
+      <div class="inputContainer">
+        <input type="text" placeholder="${placeholder}" data-id="input" />
+        <button class="addBtn" data-id="button">Add</button>
       </div>
     `
 
-    this.input = this.shadowRoot.querySelector('input')
-    this.button = this.shadowRoot.querySelector('button')
+    this.input = this.shadowRoot.querySelector('[data-id="input"]')
+    this.button = this.shadowRoot.querySelector('[data-id="button"]')
 
     this.input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && this.input.value.trim()) {
+        e.preventDefault()
         this.#dispatchAdd()
       }
     })
@@ -99,6 +100,7 @@ export class TodoInput extends HTMLElement {
     if (!text) return
 
     this.#text = text
+    this.input.value = ''
     this.dispatchEvent(
       new CustomEvent('add', {
         detail: { text },
@@ -106,8 +108,6 @@ export class TodoInput extends HTMLElement {
         composed: true,
       })
     )
-    this.input.value = ''
-    this.input.focus()
   }
 }
 
