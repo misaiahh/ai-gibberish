@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npm test:*)",
+      "Bash(node:*)",
+      "Bash(ls /Users/mickers/Projects/js/todo-app/node_modules/@vitest/browser/*.js)",
+      "Bash(ls /Users/mickers/Projects/js/todo-app/node_modules/@vitest/browser/plugins*)",
+      "Bash(npm ls:*)",
+      "Bash(find /Users/mickers/Projects/js/todo-app/src -name *.png)",
+      "Bash(npm run:*)",
+      "Bash(npx vitest:*)"
+    ]
+  }
+}
