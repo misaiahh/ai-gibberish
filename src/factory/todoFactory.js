@@ -1,4 +1,4 @@
-import { loadTodos, saveTodos, clearTodos } from '../service/storageService.js'
+import { get, set, remove } from '../service/storageService.js'
 
 /**
  * @typedef {{id: number, text: string, completed: boolean}} Todo
@@ -19,7 +19,7 @@ import { loadTodos, saveTodos, clearTodos } from '../service/storageService.js'
  */
 export function todoFactory() {
   /** @type {Todo[]} */
-  const todos = loadTodos()
+  const todos = /** @type {Todo[]} */ (get() || [])
 
   /** @type {number} */
   let nextId = 1
@@ -31,7 +31,7 @@ export function todoFactory() {
    * Persists todos to storage.
    */
   function persist() {
-    saveTodos(todos)
+    set(todos)
   }
 
   return {
@@ -129,7 +129,7 @@ export function todoFactory() {
     reset() {
       todos.length = 0
       nextId = 1
-      clearTodos()
+      remove()
     },
   }
 }

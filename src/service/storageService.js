@@ -12,29 +12,29 @@ if (!storage) {
 }
 
 /**
- * Retrieves todos from storage.
- * @returns {Array<{id: number, text: string, completed: boolean}>}
+ * Retrieves data from storage by key.
+ * @returns {unknown}
  */
-export function loadTodos() {
+export function get() {
   try {
     const data = storage.getItem(config.storageKey)
-    return data ? JSON.parse(data) : []
+    return data ? JSON.parse(data) : null
   } catch {
-    return []
+    return null
   }
 }
 
 /**
- * Saves todos to storage.
- * @param {Array<{id: number, text: string, completed: boolean}>} todos
+ * Saves data to storage.
+ * @param {unknown} data
  */
-export function saveTodos(todos) {
-  storage.setItem(config.storageKey, JSON.stringify(todos))
+export function set(data) {
+  storage.setItem(config.storageKey, JSON.stringify(data))
 }
 
 /**
- * Clears all todos from storage.
+ * Clears data from storage.
  */
-export function clearTodos() {
+export function remove() {
   storage.removeItem(config.storageKey)
 }
