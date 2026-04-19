@@ -1,4 +1,5 @@
 import { storageService } from '../service/storageService.js'
+import { config } from '../config.js'
 
 /**
  * @typedef {{id: number, text: string, completed: boolean}} Todo
@@ -31,6 +32,7 @@ export function todoFactory() {
    * Persists todos to storage.
    */
   function persist() {
+    if (config.storageDisabled) return
     storageService.set(todos)
   }
 

@@ -60,6 +60,27 @@ export class AppShell extends HTMLElement {
     window.addEventListener('route-change', (e) => {
       this.#onRouteChange(e.detail.path)
     })
+
+    // Listen for storage disable event from page components
+    document.addEventListener('storage:disable', () => {
+      this.#disableStorage()
+    })
+  }
+
+  #disableStorage() {
+    import('../service/storageService.js').then(({ storageService }) => {
+      import('../config.js').then(({ config }) => {
+        storageService.wipe()
+        config.storageDisabled = true
+        if (this.#currentPage) {
+          this.#currentPage.remove()
+          this.#currentPage = null
+        }
+        // Re-render the current page to reflect updated state
+        const path = location.pathname
+        this.#onRouteChange(path)
+      })
+    })
   }
 
   #onRouteChange(path) {

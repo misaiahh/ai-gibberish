@@ -10,5 +10,11 @@ export default defineConfig({
       instances: [{ browser: 'chromium' }],
     },
     include: ['tests/**/*.test.js'],
+    coverage: {
+      provider: 'istanbul',
+      reporter: ['text', 'lcov', 'html'],
+      include: ['src/**/*.js'],
+      exclude: ['src/**/*.test.js'],
+    },
   },
 })

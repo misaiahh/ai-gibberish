@@ -18,6 +18,7 @@ Edit `src/config.js` to choose storage backend:
 export const config = {
   storageType: 'local',  // 'local' or 'session'
   storageKey: 'todos',
+  storageDisabled: false, // set true for in-memory only mode
 }
 ```
 
@@ -29,7 +30,8 @@ export const config = {
   input, filters, and footer.
 - **`page-about`** — About page with project info.
 - **`page-settings`** — Settings page showing current
-  configuration.
+  configuration and a "Disable Storage" button to switch
+  to in-memory-only mode (wipes persisted data).
 - **`todo-input`** — Input field and Add button.
   Dispatches `add` events.
 - **`todo-item`** — Single todo row. Dispatches `toggle` and
@@ -45,6 +47,10 @@ export const config = {
   Composed: Yes
 - **`delete`** — `{ id: number }` — Bubbles: Yes,
   Composed: Yes
+- **`storage:disable`** — `{}` — Bubbles: Yes,
+  Composed: No — Dispatched by `page-settings` when the
+  "Disable Storage" button is clicked. Wipes localStorage
+  and switches the app to in-memory-only mode.
 
 ## Persistence
 
@@ -54,7 +60,13 @@ mutation to `localStorage` or `sessionStorage`
 existing todos from storage and resumes the ID counter
 from the highest stored ID. A `StorageService` class
 handles the actual persistence with `get()`, `set()`,
-and `remove()` methods.
+`remove()`, and `wipe()` methods.
+
+Setting `storageDisabled: true` in `config.js` switches
+the app to in-memory-only mode — no data is persisted
+to storage. The Settings page provides a "Disable Storage"
+button that wipes localStorage and enables this mode at
+runtime.
 
 ## Running
 
@@ -180,3 +192,22 @@ uses `history.pushState`/`history.replaceState` and listens
 to `popstate` events — no full page reloads. Nav link
 clicks are intercepted and handled synchronously to avoid
 race conditions with the event loop.
+
+### Disable Storage Feature
+
+A "Disable Storage" button was added to the Settings page.
+When clicked, it wipes all app data from localStorage and
+switches the app to in-memory-only mode. The changes are:
+
+- `config.storageDisabled` flag added to `src/config.js`
+- `StorageService.wipe()` method added to clear storage
+  unconditionally
+- `StorageService.get()`/`set()`/`remove()` skip operations
+  when `config.storageDisabled` is true
+- `todoFactory.persist()` skips writing when storage is
+  disabled
+- `page-settings` shows a confirmation modal when the
+  "Disable" button is clicked. The modal has Cancel and
+  Confirm buttons. Only Confirm dispatches `storage:disable`
+- `app-shell` listens for the event, wipes storage, sets
+  the flag, and re-renders the current page

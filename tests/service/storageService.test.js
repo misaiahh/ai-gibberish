@@ -46,4 +46,42 @@ describe('storageService', () => {
       expect(localStorage.getItem(config.storageKey)).toBeNull()
     })
   })
+
+  describe('wipe', () => {
+    it('removes data from storage even when disabled', () => {
+      const data = { id: 1, text: 'A', completed: false }
+      localStorage.setItem(config.storageKey, JSON.stringify(data))
+      config.storageDisabled = true
+
+      storageService.wipe()
+      config.storageDisabled = false
+
+      expect(localStorage.getItem(config.storageKey)).toBeNull()
+    })
+  })
+
+  describe('storageDisabled', () => {
+    beforeEach(() => {
+      config.storageDisabled = false
+    })
+
+    afterEach(() => {
+      config.storageDisabled = false
+    })
+
+    it('get returns null when storage is disabled', () => {
+      const data = { id: 1, text: 'A', completed: false }
+      localStorage.setItem(config.storageKey, JSON.stringify(data))
+      config.storageDisabled = true
+
+      expect(storageService.get()).toBeNull()
+    })
+
+    it('set does not write when storage is disabled', () => {
+      config.storageDisabled = true
+      storageService.set({ id: 1, text: 'A', completed: false })
+
+      expect(localStorage.getItem(config.storageKey)).toBeNull()
+    })
+  })
 })

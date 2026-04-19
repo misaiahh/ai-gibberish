@@ -20,6 +20,7 @@ export class StorageService {
    * @returns {unknown}
    */
   get() {
+    if (config.storageDisabled) return null
     try {
       const data = this.#storage.getItem(this.#key)
       return data ? JSON.parse(data) : null
@@ -33,6 +34,7 @@ export class StorageService {
    * @param {unknown} data
    */
   set(data) {
+    if (config.storageDisabled) return
     this.#storage.setItem(this.#key, JSON.stringify(data))
   }
 
@@ -40,6 +42,14 @@ export class StorageService {
    * Clears data from storage.
    */
   remove() {
+    if (config.storageDisabled) return
+    this.#storage.removeItem(this.#key)
+  }
+
+  /**
+   * Wipes all app data from storage.
+   */
+  wipe() {
     this.#storage.removeItem(this.#key)
   }
 }

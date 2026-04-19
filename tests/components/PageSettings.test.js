@@ -35,4 +35,51 @@ describe('PageSettings', () => {
   it('snapshot matches shadow DOM structure', () => {
     expect(page.shadowRoot.innerHTML).toMatchSnapshot()
   })
+
+  it('renders a disable storage button', () => {
+    const btn = page.shadowRoot.querySelector('[data-id="disableBtn"]')
+    expect(btn).toBeDefined()
+    expect(btn.textContent.trim()).toBe('Disable')
+  })
+
+  it('renders a confirmation modal with cancel and confirm buttons', () => {
+    const modal = page.shadowRoot.querySelector('[data-id="modal"]')
+    expect(modal).toBeDefined()
+    expect(modal.classList.contains('hidden')).toBe(true)
+    const cancelBtn = page.shadowRoot.querySelector('[data-id="cancelBtn"]')
+    expect(cancelBtn).toBeDefined()
+    expect(cancelBtn.textContent.trim()).toBe('Cancel')
+    const confirmBtn = page.shadowRoot.querySelector('[data-id="confirmBtn"]')
+    expect(confirmBtn).toBeDefined()
+    expect(confirmBtn.textContent.trim()).toBe('Confirm')
+  })
+
+  it('shows the modal when disable button is clicked', () => {
+    const modal = page.shadowRoot.querySelector('[data-id="modal"]')
+    const btn = page.shadowRoot.querySelector('[data-id="disableBtn"]')
+    btn.click()
+    expect(modal.classList.contains('hidden')).toBe(false)
+  })
+
+  it('hides the modal when cancel is clicked', () => {
+    const modal = page.shadowRoot.querySelector('[data-id="modal"]')
+    const btn = page.shadowRoot.querySelector('[data-id="disableBtn"]')
+    btn.click()
+    const cancelBtn = page.shadowRoot.querySelector('[data-id="cancelBtn"]')
+    cancelBtn.click()
+    expect(modal.classList.contains('hidden')).toBe(true)
+  })
+
+  it('dispatches storage:disable when confirm is clicked', () => {
+    const modal = page.shadowRoot.querySelector('[data-id="modal"]')
+    const btn = page.shadowRoot.querySelector('[data-id="disableBtn"]')
+    const confirmBtn = page.shadowRoot.querySelector('[data-id="confirmBtn"]')
+    let fired = false
+    page.addEventListener('storage:disable', () => { fired = true })
+    btn.click()
+    expect(modal.classList.contains('hidden')).toBe(false)
+    confirmBtn.click()
+    expect(modal.classList.contains('hidden')).toBe(true)
+    expect(fired).toBe(true)
+  })
 })
