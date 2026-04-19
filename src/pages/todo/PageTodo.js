@@ -1,4 +1,4 @@
-import { todoFactory } from '../factory/todoFactory.js'
+import { todoFactory } from '../../factory/todoFactory.js'
 
 export class PageTodo extends HTMLElement {
   #filter = 'all'

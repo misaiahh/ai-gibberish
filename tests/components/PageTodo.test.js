@@ -1,4 +1,4 @@
-import '../../src/components/PageTodo.js'
+import '../../src/pages/todo/PageTodo.js'
 import '../../src/components/TodoInput.js'
 import '../../src/components/TodoItem.js'
 import '../../src/components/TodoList.js'

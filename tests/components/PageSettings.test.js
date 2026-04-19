@@ -1,4 +1,4 @@
-import '../../src/components/PageSettings.js'
+import '../../src/pages/settings/PageSettings.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('PageSettings', () => {

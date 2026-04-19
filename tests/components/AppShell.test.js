@@ -1,7 +1,7 @@
 import '../../src/components/AppShell.js'
-import '../../src/components/PageTodo.js'
-import '../../src/components/PageAbout.js'
-import '../../src/components/PageSettings.js'
+import '../../src/pages/todo/PageTodo.js'
+import '../../src/pages/about/PageAbout.js'
+import '../../src/pages/settings/PageSettings.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('AppShell', () => {

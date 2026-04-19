@@ -1,4 +1,4 @@
-import '../../src/components/PageAbout.js'
+import '../../src/pages/about/PageAbout.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('PageAbout', () => {
