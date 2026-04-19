@@ -26,7 +26,7 @@ export class PageSettings extends HTMLElement {
       const confirmBtn = e.target.closest('[data-id="confirmBtn"]')
       if (confirmBtn) {
         modal.classList.add('hidden')
-        this.dispatchEvent(new CustomEvent('storage:disable'))
+        this.dispatchEvent(new CustomEvent('storage:disable', { bubbles: true }))
       }
     })
   }
