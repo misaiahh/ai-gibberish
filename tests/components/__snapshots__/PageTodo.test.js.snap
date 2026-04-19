@@ -1,0 +1,65 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
+"
+      <style>
+        .todoApp {
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+          padding: 24px;
+        }
+        .todoApp h1 {
+          font-size: 24px;
+          font-weight: 700;
+          text-align: center;
+          margin-bottom: 20px;
+          color: #333;
+        }
+        .filterContainer {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 12px;
+          justify-content: center;
+        }
+        .filterContainer button {
+          padding: 6px 14px;
+          border: 1px solid #ddd;
+          background: #fff;
+          border-radius: 4px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .filterContainer button.active {
+          background: #4a90d9;
+          color: #fff;
+          border-color: #4a90d9;
+        }
+        .footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 8px 0;
+          font-size: 13px;
+          color: #888;
+          border-top: 1px solid #f0f0f0;
+          margin-top: 4px;
+        }
+      </style>
+      <div class="todoApp">
+        <h1>Todo App</h1>
+        <todo-input></todo-input>
+        <div class="filterContainer" data-id="filters">
+          <button data-filter="all" class="active">All</button>
+          <button data-filter="active" class="">Active</button>
+          <button data-filter="completed" class="">Completed</button>
+        </div>
+        <todo-list filter="all" todos="[]"></todo-list>
+        <div class="footer" data-id="footer">
+          <span class="item-count" data-id="itemCount">0 items left</span>
+          <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
+        </div>
+      </div>
+    "
+`;

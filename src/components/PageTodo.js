@@ -1,20 +1,14 @@
 import { todoFactory } from '../factory/todoFactory.js'
 
-export class TodoApp extends HTMLElement {
-  /** @type {'all' | 'active' | 'completed'} */
+export class PageTodo extends HTMLElement {
   #filter = 'all'
-
   #store = todoFactory()
 
   constructor() {
     super()
-    this.#attachShadow()
+    this.attachShadow({ mode: 'open' })
     this.#bindEvents()
     this.#render()
-  }
-
-  #attachShadow() {
-    this.attachShadow({ mode: 'open' })
   }
 
   #bindEvents() {
@@ -143,4 +137,4 @@ export class TodoApp extends HTMLElement {
   }
 }
 
-customElements.define('todo-app', TodoApp)
+customElements.define('page-todo', PageTodo)

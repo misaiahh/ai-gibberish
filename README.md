@@ -7,6 +7,7 @@ and Shadow DOM.
 
 - **Web Components** (custom elements, Shadow DOM)
 - **Vite** (build tool + dev server)
+- **Custom router** (History API–based SPA routing)
 - **Vitest** (testing, with Playwright browser environment)
 
 ## Configuration
@@ -22,12 +23,17 @@ export const config = {
 
 ## Components
 
-- **`todo-app`** — Root component. Routes events,
-  delegates to `todoFactory`.
+- **`app-shell`** — SPA shell with persistent navigation bar
+  and dynamic page content area.
+- **`page-todo`** — Home page. Renders the todo list with
+  input, filters, and footer.
+- **`page-about`** — About page with project info.
+- **`page-settings`** — Settings page showing current
+  configuration.
 - **`todo-input`** — Input field and Add button.
   Dispatches `add` events.
-- **`todo-item`** — Single todo row. Dispatches
-  `toggle` and `delete` events.
+- **`todo-item`** — Single todo row. Dispatches `toggle` and
+  `delete` events.
 - **`todo-list`** — Renders a filtered list of
   `todo-item` components.
 
@@ -159,3 +165,18 @@ tests in `tests/factory/`, service tests in `tests/service/`,
 and utility tests in `tests/utils/`. This makes it easy to
 locate tests and keeps the project structure consistent
 between source and test directories.
+
+### SPA Routing
+
+The app was converted from a single-view to a multi-page
+SPA with client-side routing via a custom router built on
+the History API. An `AppShell` component renders a persistent
+navigation bar (Home, About, Settings) and dynamically swaps
+page components based on the current route. The Home page
+uses `PageTodo` with the existing todo list functionality.
+The About page displays project information. The Settings
+page shows the current storage configuration. Navigation
+uses `history.pushState`/`history.replaceState` and listens
+to `popstate` events — no full page reloads. Nav link
+clicks are intercepted and handled synchronously to avoid
+race conditions with the event loop.

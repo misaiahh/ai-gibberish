@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AppShell > snapshot matches shadow DOM structure 1`] = `
+"
+      <style>
+        .navBar {
+          display: flex;
+          gap: 4px;
+          padding: 8px 16px;
+          background: #4a90d9;
+          border-radius: 8px 8px 0 0;
+        }
+        .navBar nav-link {
+          --nav-color: #fff;
+        }
+        .navBar nav-link::part(link) {
+          color: var(--nav-color);
+          background: transparent;
+        }
+        .navBar nav-link::part(link):hover {
+          background: rgba(255,255,255,0.15);
+        }
+        .navBar nav-link::part(link).active {
+          background: rgba(255,255,255,0.25);
+        }
+        .pageContent {
+          background: #fff;
+          border-radius: 0 0 8px 8px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+          padding: 24px;
+          min-height: 200px;
+        }
+      </style>
+      <nav class="navBar" data-id="nav">
+        <nav-link href="/" active="">Home</nav-link>
+        <nav-link href="/about">About</nav-link>
+        <nav-link href="/settings">Settings</nav-link>
+      </nav>
+      <div class="pageContent">
+        <slot name="page-content"></slot>
+      </div>
+    "
+`;
