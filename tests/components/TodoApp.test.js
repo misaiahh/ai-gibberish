@@ -3,7 +3,7 @@ import '../../src/components/TodoInput.js'
 import '../../src/components/TodoItem.js'
 import '../../src/components/TodoList.js'
 import { TodoApp } from '../../src/components/TodoApp.js'
-import { remove } from '../../src/service/storageService.js'
+import { storageService } from '../../src/service/storageService.js'
 import { config } from '../../src/config.js'
 
 describe('TodoApp', () => {
@@ -12,14 +12,14 @@ describe('TodoApp', () => {
   beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
-    remove()
+    storageService.remove()
     localStorage.removeItem(config.storageKey)
   })
 
   afterEach(() => {
     document.body.removeChild(container)
     container = null
-    remove()
+    storageService.remove()
     localStorage.removeItem(config.storageKey)
   })
 

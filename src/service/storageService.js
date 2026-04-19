@@ -11,30 +11,37 @@ if (!storage) {
   throw new Error(`Unknown storage type: ${config.storageType}`)
 }
 
-/**
- * Retrieves data from storage by key.
- * @returns {unknown}
- */
-export function get() {
-  try {
-    const data = storage.getItem(config.storageKey)
-    return data ? JSON.parse(data) : null
-  } catch {
-    return null
+export class StorageService {
+  #storage = storage
+  #key = config.storageKey
+
+  /**
+   * Retrieves data from storage.
+   * @returns {unknown}
+   */
+  get() {
+    try {
+      const data = this.#storage.getItem(this.#key)
+      return data ? JSON.parse(data) : null
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * Saves data to storage.
+   * @param {unknown} data
+   */
+  set(data) {
+    this.#storage.setItem(this.#key, JSON.stringify(data))
+  }
+
+  /**
+   * Clears data from storage.
+   */
+  remove() {
+    this.#storage.removeItem(this.#key)
   }
 }
 
-/**
- * Saves data to storage.
- * @param {unknown} data
- */
-export function set(data) {
-  storage.setItem(config.storageKey, JSON.stringify(data))
-}
-
-/**
- * Clears data from storage.
- */
-export function remove() {
-  storage.removeItem(config.storageKey)
-}
+export const storageService = new StorageService()

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { get, set, remove } from '../../src/service/storageService.js'
+import { storageService } from '../../src/service/storageService.js'
 import { config } from '../../src/config.js'
 
 describe('storageService', () => {
@@ -13,7 +13,7 @@ describe('storageService', () => {
 
   describe('set', () => {
     it('stores data as JSON', () => {
-      set({ id: 1, text: 'A', completed: false })
+      storageService.set({ id: 1, text: 'A', completed: false })
       expect(localStorage.getItem(config.storageKey)).toBe(
         JSON.stringify({ id: 1, text: 'A', completed: false })
       )
@@ -25,23 +25,23 @@ describe('storageService', () => {
       const data = { id: 1, text: 'A', completed: false }
       localStorage.setItem(config.storageKey, JSON.stringify(data))
 
-      expect(get()).toEqual(data)
+      expect(storageService.get()).toEqual(data)
     })
 
     it('returns null when nothing stored', () => {
-      expect(get()).toBeNull()
+      expect(storageService.get()).toBeNull()
     })
 
     it('returns null on invalid JSON', () => {
       localStorage.setItem(config.storageKey, 'not valid json')
-      expect(get()).toBeNull()
+      expect(storageService.get()).toBeNull()
     })
   })
 
   describe('remove', () => {
     it('removes data from storage', () => {
-      set({ id: 1, text: 'A', completed: false })
-      remove()
+      storageService.set({ id: 1, text: 'A', completed: false })
+      storageService.remove()
 
       expect(localStorage.getItem(config.storageKey)).toBeNull()
     })

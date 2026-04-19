@@ -46,7 +46,9 @@ export const config = {
 mutation to `localStorage` or `sessionStorage`
 (configurable in `config.js`). On init, the store loads
 existing todos from storage and resumes the ID counter
-from the highest stored ID.
+from the highest stored ID. A `StorageService` class
+handles the actual persistence with `get()`, `set()`,
+and `remove()` methods.
 
 ## Running
 
@@ -146,8 +148,8 @@ Every mutation automatically persists to `localStorage` or
 `sessionStorage` (configurable via `src/config.js`). When
 the app loads, existing todos are restored from storage and
 the ID counter resumes from the last stored value. A
-dedicated `storageService` module provides `loadTodos()`,
-`saveTodos()`, and `clearTodos()` for the persistence layer.
+`StorageService` class provides `get()`, `set()`, and
+`remove()` methods for generic key-value JSON persistence.
 
 ### Test Organization
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { todoFactory } from '../../src/factory/todoFactory.js'
-import { remove } from '../../src/service/storageService.js'
+import { storageService } from '../../src/service/storageService.js'
 import { config } from '../../src/config.js'
 
 describe('todoFactory', () => {
@@ -12,7 +12,7 @@ describe('todoFactory', () => {
 
   afterEach(() => {
     store.reset()
-    remove()
+    storageService.remove()
   })
 
   describe('create', () => {
