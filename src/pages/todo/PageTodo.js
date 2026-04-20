@@ -94,25 +94,33 @@ export class PageTodo extends HTMLElement {
           margin-bottom: 20px;
           color: var(--text-primary, #333);
         }
-        .filterContainer {
+    .filterContainer {
           display: flex;
-          gap: 6px;
-          margin-bottom: 12px;
-          justify-content: center;
+          gap: 4px;
+          margin: 12px auto 16px;
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 24px;
+          padding: 4px 6px;
+          background: var(--bg-app, #f5f5f5);
         }
         .filterContainer button {
-          padding: 6px 14px;
-          border: 1px solid var(--border-input, #ddd);
-          background: var(--bg-card, #fff);
-          border-radius: 4px;
+          padding: 8px 18px;
+          border: none;
+          background: transparent;
+          border-radius: 20px;
           font-size: 13px;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.2s ease;
+          color: var(--text-secondary, #555);
+        }
+        .filterContainer button:hover {
+          color: var(--text-primary, #333);
         }
         .filterContainer button.active {
           background: var(--bg-filter-active, #4a90d9);
           color: var(--text-header, #fff);
-          border-color: var(--bg-filter-active, #4a90d9);
+          box-shadow: 0 1px 4px rgba(74, 144, 217, 0.3);
         }
         .footer {
           display: flex;
@@ -133,10 +141,12 @@ export class PageTodo extends HTMLElement {
       <div class="todoApp">
         <h1>Todo App</h1>
         <todo-input></todo-input>
-        <div class="filterContainer" data-id="filters">
-          <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
-          <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
-          <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
+        <div style="text-align: center;">
+          <div class="filterContainer" data-id="filters">
+            <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
+            <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
+            <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
+          </div>
         </div>
         <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}'></todo-list>
         <div class="footer" data-id="footer">
