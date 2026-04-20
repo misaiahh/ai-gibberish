@@ -1,3 +1,4 @@
+import { themeManager } from './service/themeManager.js'
 import { router } from './utils/router.js'
 import { config } from './config.js'
 
@@ -26,6 +27,8 @@ function init() {
   const shell = document.querySelector('app-shell')
 
   if (!shell) return
+
+  themeManager.init()
 
   initPreferences().then(() => {
     // Register known routes so the router doesn't redirect them

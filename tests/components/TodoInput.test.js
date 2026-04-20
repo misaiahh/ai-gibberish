@@ -126,19 +126,19 @@ describe('TodoInput', () => {
               .inputContainer input {
                 flex: 1;
                 padding: 10px 12px;
-                border: 1px solid #ddd;
+                border: 1px solid var(--border-input, #ddd);
                 border-radius: 6px;
                 font-size: 14px;
                 outline: none;
                 transition: border-color 0.2s;
               }
               .inputContainer input:focus {
-                border-color: #4a90d9;
+                border-color: var(--accent-primary, #4a90d9);
               }
               .addBtn {
                 padding: 10px 18px;
-                background: #4a90d9;
-                color: #fff;
+                background: var(--bg-btn-primary, #4a90d9);
+                color: var(--text-header, #fff);
                 border: none;
                 border-radius: 6px;
                 font-size: 14px;
@@ -147,7 +147,7 @@ describe('TodoInput', () => {
                 transition: background 0.2s;
               }
               .addBtn:hover {
-                background: #357abd;
+                background: var(--bg-btn-primary-hover, #357abd);
               }
             </style>
             <div class="inputContainer">

@@ -189,7 +189,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -203,26 +203,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,17 +253,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -290,7 +290,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @typedef {Object} TodoInput
  * @property {HTMLInputElement} input - The text input element
@@ -341,19 +341,19 @@ export class TodoInput extends HTMLElement {
         .inputContainer input {
           flex: 1;
           padding: 10px 12px;
-          border: 1px solid #ddd;
+          border: 1px solid var(--border-input, #ddd);
           border-radius: 6px;
           font-size: 14px;
           outline: none;
           transition: border-color 0.2s;
         }
         .inputContainer input:focus {
-          border-color: #4a90d9;
+          border-color: var(--accent-primary, #4a90d9);
         }
         .addBtn {
           padding: 10px 18px;
-          background: #4a90d9;
-          color: #fff;
+          background: var(--bg-btn-primary, #4a90d9);
+          color: var(--text-header, #fff);
           border: none;
           border-radius: 6px;
           font-size: 14px;
@@ -362,7 +362,7 @@ export class TodoInput extends HTMLElement {
           transition: background 0.2s;
         }
         .addBtn:hover {
-          background: #357abd;
+          background: var(--bg-btn-primary-hover, #357abd);
         }
       &lt;/style&gt;
       &lt;div class="inputContainer"&gt;
@@ -389,14 +389,14 @@ export class TodoInput extends HTMLElement {
   }
 &nbsp;
   #dispatchAdd() {
-    const text = this.input.value.trim()
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!text) <span class="cstat-no" title="statement not covered" >return</span>
+    const title = this.input.value.trim()
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!title) <span class="cstat-no" title="statement not covered" >return</span>
 &nbsp;
-    this.#text = text
+    this.#text = title
     this.input.value = ''
     this.dispatchEvent(
       new CustomEvent('add', {
-        detail: { text },
+        detail: { title },
         bubbles: true,
         composed: true,
       })
@@ -412,7 +412,7 @@ customElements.define('todo-input', TodoInput)
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-19T02:42:41.567Z
+                at 2026-04-20T18:44:18.824Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

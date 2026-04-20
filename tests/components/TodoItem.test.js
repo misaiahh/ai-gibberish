@@ -138,7 +138,7 @@ describe('TodoItem', () => {
                 align-items: center;
                 gap: 10px;
                 padding: 10px 8px;
-                border-bottom: 1px solid #f0f0f0;
+                border-bottom: 1px solid var(--border-color, #f0f0f0);
               }
               .todoItem:last-child {
                 border-bottom: none;
@@ -147,21 +147,21 @@ describe('TodoItem', () => {
                 width: 18px;
                 height: 18px;
                 cursor: pointer;
-                accent-color: #4a90d9;
+                accent-color: var(--accent-primary, #4a90d9);
               }
               .todoText {
                 flex: 1;
                 font-size: 14px;
-                color: #333;
+                color: var(--text-primary, #333);
               }
               .todoText.completed {
                 text-decoration: line-through;
-                color: #aaa;
+                color: var(--text-completed, #aaa);
               }
               .deleteBtn {
                 background: none;
                 border: none;
-                color: #e74c3c;
+                color: var(--bg-btn-danger, #e74c3c);
                 font-size: 18px;
                 cursor: pointer;
                 padding: 0 4px;
