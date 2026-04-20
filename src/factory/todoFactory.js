@@ -1,11 +1,13 @@
 import { apiService } from '../service/apiService.js'
+import { storageService } from '../service/storageService.js'
+import { config } from '../config.js'
 
 /**
  * @typedef {{id: string, title: string, completed: boolean, createdAt: string, updatedAt: string}} Todo
  */
 
 /**
- * Creates a new todo store backed by the remote API.
+ * Creates a new todo store backed by the remote API with localStorage persistence for offline access.
  * @returns {{
  *   create: (title: string) => Promise<Todo>,
  *   getAll: () => Promise<Todo[]>,
@@ -21,30 +23,145 @@ import { apiService } from '../service/apiService.js'
 export function todoFactory() {
   /** @type {Todo[]} */
   let todos = []
+  /** @type {boolean} */
+  let online = true
 
+  function isStorageEnabled() {
+    return config.storageDisabled === false
+  }
+
+  /**
+   * Loads todos from localStorage into memory.
+   */
+  function loadFromStorage() {
+    if (!isStorageEnabled()) return
+    try {
+      const data = storageService.get()
+      if (Array.isArray(data) && data.length) {
+        todos = data
+      }
+    } catch {
+      // Corrupted storage — ignore, start fresh
+    }
+  }
+
+  /**
+   * Persists todos to localStorage.
+   */
+  function saveToStorage() {
+    if (!isStorageEnabled()) return
+    storageService.set(todos)
+  }
+
+  /**
+   * Fetches all todos from API and reconciles with local state.
+   * Server data wins for items that exist on both sides.
+   * Local-only items are pushed to the API on next sync.
+   */
+  async function syncWithAPI() {
+    if (!config.serverStorageEnabled) return
+
+    try {
+      const serverTodos = await apiService.getAll()
+      const serverIds = new Set(serverTodos.map((t) => t.id))
+
+      // Remove local items that were deleted on server
+      todos = todos.filter((t) => serverIds.has(t.id))
+
+      // Update existing items with server data
+      const serverMap = new Map(serverTodos.map((t) => [t.id, t]))
+      for (const todo of todos) {
+        if (serverMap.has(todo.id)) {
+          Object.assign(todo, serverMap.get(todo.id))
+        }
+      }
+
+      // Push local-only items to API (offline creations)
+      const localOnly = todos.filter((t) => !serverIds.has(t.id))
+      for (const localTodo of localOnly) {
+        try {
+          const serverTodo = await apiService.create(localTodo.title)
+          Object.assign(localTodo, serverTodo)
+        } catch {
+          // Keep local version if API fails during sync
+        }
+      }
+
+      saveToStorage()
+    } catch {
+      // Network unreachable — stay offline
+      online = false
+    }
+  }
+
+  /**
+   * Refreshes todos from the API (used for initial load).
+   */
   async function refresh() {
     const data = await apiService.getAll()
     if (data.length) todos = data
   }
 
+  function markOnline() {
+    online = true
+    syncWithAPI()
+  }
+
+  function initOnlineListener() {
+    if ('navigator' in globalThis && typeof navigator.onLine === 'boolean') {
+      window.addEventListener('online', markOnline)
+      window.addEventListener('offline', () => { online = false })
+    }
+  }
+
+  initOnlineListener()
+
   return {
     /**
-     * Creates a new todo.
+     * Creates a new todo. Optimistic: applies immediately to memory + storage.
      * @param {string} title
      * @returns {Promise<Todo>}
      */
     async create(title) {
-      const todo = await apiService.create(title)
+      const todo = {
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        completed: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
       todos.push(todo)
+      saveToStorage()
+
+      if (config.serverStorageEnabled && online) {
+        try {
+          const serverTodo = await apiService.create(title)
+          Object.assign(todo, serverTodo)
+          saveToStorage()
+        } catch {
+          online = false
+        }
+      }
       return todo
     },
 
     /**
      * Fetches and returns all todos from API.
+     * Loads from localStorage first for instant display, then syncs with API.
      * @returns {Promise<Todo[]>}
      */
     async getAll() {
-      await refresh()
+      loadFromStorage()
+
+      if (config.serverStorageEnabled && online) {
+        try {
+          await refresh()
+          saveToStorage()
+        } catch {
+          online = false
+          // Fall back to localStorage data already loaded
+        }
+      }
       return todos
     },
 
@@ -61,11 +178,19 @@ export function todoFactory() {
      * @param {string} id
      */
     async delete(id) {
-      await apiService.remove(id)
       for (let i = 0; i < todos.length; i++) {
         if (todos[i].id === id) {
           todos.splice(i, 1)
-          return
+          saveToStorage()
+          break
+        }
+      }
+
+      if (config.serverStorageEnabled && online) {
+        try {
+          await apiService.remove(id)
+        } catch {
+          online = false
         }
       }
     },
@@ -78,10 +203,19 @@ export function todoFactory() {
     async toggle(id) {
       const todo = todos.find((t) => t.id === id)
       if (!todo) return
-      const updated = await apiService.update(id, { completed: !todo.completed })
-      todo.completed = updated.completed
-      todo.title = updated.title
-      todo.updatedAt = updated.updatedAt
+      todo.completed = !todo.completed
+      todo.updatedAt = new Date().toISOString()
+      saveToStorage()
+
+      if (config.serverStorageEnabled && online) {
+        try {
+          const updated = await apiService.update(id, { completed: todo.completed })
+          Object.assign(todo, updated)
+          saveToStorage()
+        } catch {
+          online = false
+        }
+      }
       return todo
     },
 
@@ -90,10 +224,17 @@ export function todoFactory() {
      */
     async clearCompleted() {
       const completed = todos.filter((t) => t.completed)
-      for (const todo of completed) {
-        await apiService.remove(todo.id)
+      if (config.serverStorageEnabled) {
+        for (const todo of completed) {
+          await apiService.remove(todo.id)
+        }
       }
       todos = todos.filter((t) => !t.completed)
+      saveToStorage()
+
+      if (!online) {
+        online = false
+      }
     },
 
     /**
@@ -121,11 +262,21 @@ export function todoFactory() {
     },
 
     /**
+     * Syncs local state with the API (used when coming back online).
+     */
+    async sync() {
+      if (!online) {
+        await syncWithAPI()
+      }
+    },
+
+    /**
      * Resets the store (useful for tests).
      */
     async reset() {
       await this.clearCompleted()
       todos.length = 0
+      saveToStorage()
     },
   }
 }
