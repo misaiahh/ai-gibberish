@@ -3,11 +3,17 @@ import { todoFactory } from '../../factory/todoFactory.js'
 export class PageTodo extends HTMLElement {
   #filter = 'all'
   #store = todoFactory()
+  #initialized = false
 
   constructor() {
     super()
     this.attachShadow({ mode: 'open' })
     this.#bindEvents()
+  }
+
+  connectedCallback() {
+    if (this.#initialized) return
+    this.#initialized = true
     this.#init()
   }
 

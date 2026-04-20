@@ -34,8 +34,12 @@ describe('AppShell', () => {
     expect(links[2].getAttribute('href')).toBe('/settings')
   })
 
-  it('highlights active nav link', () => {
+  it('highlights active nav link', async () => {
     shell.navigate('/about')
+    window.dispatchEvent(new CustomEvent('route-change', {
+      detail: { path: '/about' },
+    }))
+    await new Promise((resolve) => setTimeout(resolve, 50))
     const nav = shell.shadowRoot.querySelector('[data-id="nav"]')
     const links = nav.querySelectorAll('nav-link')
     expect(links[0].getAttribute('active')).toBeNull()
@@ -111,8 +115,12 @@ describe('AppShell', () => {
     expect(links[1].getAttribute('active')).toBeNull()
   })
 
-  it('snapshot matches shadow DOM structure', () => {
+  it('snapshot matches shadow DOM structure', async () => {
     shell.navigate('/')
+    window.dispatchEvent(new CustomEvent('route-change', {
+      detail: { path: '/' },
+    }))
+    await new Promise((resolve) => setTimeout(resolve, 50))
     expect(shell.shadowRoot.innerHTML).toMatchSnapshot()
   })
 })
