@@ -9,6 +9,7 @@ export class PageTodo extends HTMLElement {
     super()
     this.attachShadow({ mode: 'open' })
     this.#bindEvents()
+    this.#bindStatusListener()
   }
 
   connectedCallback() {
@@ -20,6 +21,20 @@ export class PageTodo extends HTMLElement {
   async #init() {
     await this.#store.getAll()
     this.#render()
+  }
+
+  #bindStatusListener() {
+    this.#store.onStatusChange((isOnline) => {
+      const statusEl = this.shadowRoot.querySelector('[data-id="statusMsg"]')
+      if (statusEl) {
+        if (!isOnline) {
+          statusEl.textContent = 'Working offline — changes saved locally'
+          statusEl.style.display = 'inline'
+        } else {
+          statusEl.style.display = 'none'
+        }
+      }
+    })
   }
 
   #bindEvents() {
@@ -109,6 +124,11 @@ export class PageTodo extends HTMLElement {
           border-top: 1px solid var(--border-color, #f0f0f0);
           margin-top: 4px;
         }
+        .status-msg {
+          font-size: 12px;
+          color: var(--text-warning, #e67e22);
+          font-style: italic;
+        }
       </style>
       <div class="todoApp">
         <h1>Todo App</h1>
@@ -121,6 +141,7 @@ export class PageTodo extends HTMLElement {
         <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}'></todo-list>
         <div class="footer" data-id="footer">
           <span class="item-count" data-id="itemCount"></span>
+          <span class="status-msg" data-id="statusMsg" style="display:none;"></span>
           <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:var(--bg-btn-danger,#e74c3c);font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
         </div>
       </div>

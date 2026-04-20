@@ -17,6 +17,8 @@ import { config } from '../config.js'
  *   clearCompleted: () => Promise<void>,
  *   getActiveCount: () => number,
  *   getCompletedCount: () => number,
+ *   onStatusChange: (fn: (isOnline: boolean) => void) => () => void,
+ *   sync: () => Promise<void>,
  *   reset: () => Promise<void>
  * }}
  */
@@ -25,9 +27,17 @@ export function todoFactory() {
   let todos = []
   /** @type {boolean} */
   let online = true
+  /** @type {Set<Function>} */
+  const listeners = new Set()
 
   function isStorageEnabled() {
     return config.storageDisabled === false
+  }
+
+  function notifyStatus() {
+    for (const fn of listeners) {
+      fn(online)
+    }
   }
 
   /**
@@ -104,13 +114,17 @@ export function todoFactory() {
 
   function markOnline() {
     online = true
+    notifyStatus()
     syncWithAPI()
   }
 
   function initOnlineListener() {
     if ('navigator' in globalThis && typeof navigator.onLine === 'boolean') {
       window.addEventListener('online', markOnline)
-      window.addEventListener('offline', () => { online = false })
+      window.addEventListener('offline', () => {
+        online = false
+        notifyStatus()
+      })
     }
   }
 
@@ -224,17 +238,18 @@ export function todoFactory() {
      */
     async clearCompleted() {
       const completed = todos.filter((t) => t.completed)
-      if (config.serverStorageEnabled) {
+      if (config.serverStorageEnabled && online) {
         for (const todo of completed) {
-          await apiService.remove(todo.id)
+          try {
+            await apiService.remove(todo.id)
+          } catch {
+            online = false
+            // Continue removing remaining items from local state
+          }
         }
       }
       todos = todos.filter((t) => !t.completed)
       saveToStorage()
-
-      if (!online) {
-        online = false
-      }
     },
 
     /**
@@ -268,6 +283,16 @@ export function todoFactory() {
       if (!online) {
         await syncWithAPI()
       }
+    },
+
+    /**
+     * Subscribes to online/offline status changes.
+     * @param {(isOnline: boolean) => void} fn
+     * @returns {() => void} Unsubscribe function
+     */
+    onStatusChange(fn) {
+      listeners.add(fn)
+      return () => { listeners.delete(fn) }
     },
 
     /**
