@@ -36,9 +36,17 @@ export class AppShell extends HTMLElement {
         .pageContent {
           background: #fff;
           border-radius: 0 0 8px 8px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
           padding: 24px;
           min-height: 200px;
+        }
+        .loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 200px;
+          color: #888;
+          font-size: 14px;
         }
       </style>
       <nav class="navBar" data-id="nav">
@@ -56,18 +64,24 @@ export class AppShell extends HTMLElement {
   }
 
   #bindEvents() {
-    // Listen for router's custom navigation event
     window.addEventListener('route-change', (e) => {
       this.#onRouteChange(e.detail.path)
     })
 
-    // Listen for storage disable event from page components
     document.addEventListener('storage:disable', () => {
       this.#disableStorage()
     })
   }
 
-  #disableStorage() {
+  async #disableStorage() {
+    try {
+      await import('../service/preferencesService.js').then(({ preferencesService }) =>
+        preferencesService.updatePreferences({ clientStorageEnabled: false }),
+      )
+    } catch {
+      // Preferences server unavailable — proceed anyway
+    }
+
     import('../service/storageService.js').then(({ storageService }) => {
       import('../config.js').then(({ config }) => {
         storageService.wipe()
@@ -76,7 +90,6 @@ export class AppShell extends HTMLElement {
           this.#currentPage.remove()
           this.#currentPage = null
         }
-        // Re-render the current page to reflect updated state
         const path = location.pathname
         this.#onRouteChange(path)
       })

@@ -1,10 +1,18 @@
 import '../../src/pages/settings/PageSettings.js'
+import { config } from '../../src/config.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('PageSettings', () => {
   let page
 
   beforeEach(() => {
+    config.preferences = {
+      clientStorageEnabled: true,
+      serverStorageEnabled: true,
+      createdAt: '2025-01-01T00:00:00.000Z',
+      updatedAt: '2025-01-01T00:00:00.000Z',
+    }
+
     page = document.createElement('page-settings')
     document.body.appendChild(page)
   })
@@ -12,6 +20,7 @@ describe('PageSettings', () => {
   afterEach(() => {
     document.body.removeChild(page)
     page = null
+    config.preferences = null
   })
 
   it('renders an h2 heading', () => {
@@ -52,6 +61,37 @@ describe('PageSettings', () => {
     const confirmBtn = page.shadowRoot.querySelector('[data-id="confirmBtn"]')
     expect(confirmBtn).toBeDefined()
     expect(confirmBtn.textContent.trim()).toBe('Confirm')
+  })
+
+  it('renders a client storage warning modal with cancel and disable buttons', () => {
+    const modal = page.shadowRoot.querySelector('[data-id="confirmModal"]')
+    expect(modal).toBeDefined()
+    expect(modal.classList.contains('hidden')).toBe(true)
+    const cancelBtn = page.shadowRoot.querySelector('[data-id="confirmCancel"]')
+    expect(cancelBtn).toBeDefined()
+    expect(cancelBtn.textContent.trim()).toBe('Cancel')
+    const confirmBtn = page.shadowRoot.querySelector('[data-id="confirmOk"]')
+    expect(confirmBtn).toBeDefined()
+    expect(confirmBtn.textContent.trim()).toBe('Disable')
+  })
+
+  it('shows the client storage warning when toggle is turned off', () => {
+    const toggle = page.shadowRoot.querySelector('[data-id="toggle"][data-pref="clientStorageEnabled"]')
+    const confirmModal = page.shadowRoot.querySelector('[data-id="confirmModal"]')
+    toggle.checked = false
+    toggle.dispatchEvent(new Event('change', { bubbles: true }))
+    expect(confirmModal.classList.contains('hidden')).toBe(false)
+  })
+
+  it('hides the client storage warning when cancel is clicked', () => {
+    const toggle = page.shadowRoot.querySelector('[data-id="toggle"][data-pref="clientStorageEnabled"]')
+    const confirmModal = page.shadowRoot.querySelector('[data-id="confirmModal"]')
+    toggle.checked = false
+    toggle.dispatchEvent(new Event('change', { bubbles: true }))
+    expect(confirmModal.classList.contains('hidden')).toBe(false)
+    const cancelBtn = page.shadowRoot.querySelector('[data-id="confirmCancel"]')
+    cancelBtn.click()
+    expect(confirmModal.classList.contains('hidden')).toBe(true)
   })
 
   it('shows the modal when disable button is clicked', () => {

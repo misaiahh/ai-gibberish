@@ -53,6 +53,7 @@ describe('todoFactory', () => {
   let store
 
   beforeEach(() => {
+    localStorage.clear()
     store = todoFactory()
     vi.clearAllMocks()
     createMock.mockImplementation((title) => makeTodo({ title }))

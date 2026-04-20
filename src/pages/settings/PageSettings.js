@@ -1,10 +1,15 @@
 import { config } from '../../config.js'
+import { preferencesService } from '../../service/preferencesService.js'
+import { storageService } from '../../service/storageService.js'
 
 export class PageSettings extends HTMLElement {
+  #preferences = null
+
   constructor() {
     super()
     this.attachShadow({ mode: 'open' })
     this.#bindEvents()
+    this.#preferences = config.preferences
     this.#render()
   }
 
@@ -29,9 +34,68 @@ export class PageSettings extends HTMLElement {
         this.dispatchEvent(new CustomEvent('storage:disable', { bubbles: true }))
       }
     })
+
+    this.shadowRoot.addEventListener('change', async (e) => {
+      const toggle = e.target.closest('[data-id="toggle"]')
+      if (!toggle || !this.#preferences) return
+
+      const pref = toggle.dataset.pref
+      const value = toggle.checked
+
+      // Warn when turning off client storage
+      if (pref === 'clientStorageEnabled' && !value) {
+        toggle.checked = true
+        this.shadowRoot.querySelector('[data-id="confirmModal"]').classList.remove('hidden')
+        return
+      }
+
+      try {
+        const updated = await preferencesService.updatePreferences({
+          [pref]: value,
+        })
+
+        // Update local references so re-navigation reflects the new value
+        if (pref === 'clientStorageEnabled') {
+          this.#preferences.clientStorageEnabled = value
+          config.preferences.clientStorageEnabled = value
+          config.storageDisabled = !value
+        }
+        if (pref === 'serverStorageEnabled') {
+          this.#preferences.serverStorageEnabled = value
+          config.preferences.serverStorageEnabled = value
+          config.serverStorageEnabled = value
+        }
+
+        toggle.closest('.settingRow').querySelector('[data-id="toggleValue"]').textContent = value
+      } catch {
+        toggle.checked = !value
+      }
+    })
+
+    this.shadowRoot.addEventListener('click', (e) => {
+      const confirmModal = this.shadowRoot.querySelector('[data-id="confirmModal"]')
+      const cancelBtn = e.target.closest('[data-id="confirmCancel"]')
+      if (cancelBtn) {
+        confirmModal.classList.add('hidden')
+        return
+      }
+
+      const confirmBtn = e.target.closest('[data-id="confirmOk"]')
+      if (confirmBtn) {
+        confirmModal.classList.add('hidden')
+        storageService.wipe()
+        config.storageDisabled = true
+        this.#preferences.clientStorageEnabled = false
+        this.shadowRoot.querySelector('[data-id="toggle"][data-pref="clientStorageEnabled"]').checked = false
+        this.shadowRoot.querySelector('[data-id="toggleValue"][data-pref="clientStorageEnabled"]').textContent = 'false'
+      }
+    })
   }
 
   #render() {
+    const clientEnabled = this.#preferences?.clientStorageEnabled ?? !config.storageDisabled
+    const serverEnabled = this.#preferences?.serverStorageEnabled ?? config.serverStorageEnabled
+
     this.shadowRoot.innerHTML = `
       <style>
         .settings {
@@ -64,6 +128,45 @@ export class PageSettings extends HTMLElement {
           font-size: 14px;
           color: #555;
           font-family: monospace;
+        }
+        .toggle {
+          position: relative;
+          width: 44px;
+          height: 24px;
+          cursor: pointer;
+        }
+        .toggle input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+          position: absolute;
+        }
+        .toggle .slider {
+          position: absolute;
+          inset: 0;
+          background: #ccc;
+          border-radius: 24px;
+          transition: background 0.2s;
+        }
+        .toggle .slider::before {
+          content: '';
+          position: absolute;
+          width: 18px;
+          height: 18px;
+          left: 3px;
+          top: 3px;
+          background: #fff;
+          border-radius: 50%;
+          transition: transform 0.2s;
+        }
+        .toggle input:checked + .slider {
+          background: #4a90d9;
+        }
+        .toggle input:checked + .slider::before {
+          transform: translateX(20px);
+        }
+        .toggle input:focus + .slider {
+          box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.3);
         }
         .dangerBtn {
           padding: 8px 16px;
@@ -146,8 +249,38 @@ export class PageSettings extends HTMLElement {
           <span data-id="storageKey">${config.storageKey}</span>
         </div>
         <div class="settingRow">
+          <label>Client Storage</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span data-id="toggleValue">${clientEnabled}</span>
+            <label class="toggle">
+              <input type="checkbox" data-id="toggle" data-pref="clientStorageEnabled" ${clientEnabled ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settingRow">
+          <label>Server Storage</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span data-id="toggleValue">${serverEnabled}</span>
+            <label class="toggle">
+              <input type="checkbox" data-id="toggle" data-pref="serverStorageEnabled" ${serverEnabled ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settingRow">
           <label>Disable Storage</label>
           <button class="dangerBtn" data-id="disableBtn">Disable</button>
+        </div>
+      </div>
+      <div class="modal hidden" data-id="confirmModal">
+        <div class="modalContent">
+          <h3>Disable Client Storage?</h3>
+          <p>All todos stored in your browser will be permanently erased. This action cannot be undone.</p>
+          <div class="modalActions">
+            <button data-id="confirmCancel">Cancel</button>
+            <button class="danger" data-id="confirmOk">Disable</button>
+          </div>
         </div>
       </div>
       <div class="modal hidden" data-id="modal">
