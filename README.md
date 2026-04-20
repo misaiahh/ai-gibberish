@@ -210,4 +210,31 @@ switches the app to in-memory-only mode. The changes are:
   "Disable" button is clicked. The modal has Cancel and
   Confirm buttons. Only Confirm dispatches `storage:disable`
 - `app-shell` listens for the event, wipes storage, sets
-  the flag, and re-renders the current page
+   the flag, and re-renders the current page
+
+### Error Handling and Offline Support
+
+The `todoFactory` now properly handles API failures for all
+mutation operations (create, delete, toggle, clearCompleted).
+When an API call fails, the app sets `online = false` and
+keeps the local state consistent — mutations are still
+applied to memory and localStorage immediately (optimistic
+updates). When the browser fires an `online` event, the store
+automatically syncs pending changes to the server.
+
+`clearCompleted` now checks the `online` flag before calling
+the API and uses try/catch around each deletion request so
+one failure doesn't prevent remaining items from being
+removed locally.
+
+A `onStatusChange` method was added to the store, allowing
+consumers to subscribe to online/offline transitions.
+`PageTodo` uses this to display a "Working offline — changes
+saved locally" message in the footer when the API is
+unreachable.
+
+The `filterTodos` utility was inlined into `TodoList` to
+eliminate the orphaned dependency on `todoUtils.js`, which
+contains unused functions (`generateId`, `addTodo`,
+`toggleTodo`, `deleteTodo`, `getCompletedCount`) that were
+left over from an earlier architecture.

@@ -3,7 +3,22 @@
  * @property {HTMLUListElement} list
  */
 
-import { filterTodos } from '../utils/todoUtils.js'
+/**
+ * Returns the subset of todos matching the given filter.
+ * @param {'all' | 'active' | 'completed'} filter
+ * @param {Array} todos
+ * @returns {Array}
+ */
+function filterTodos(filter, todos) {
+  switch (filter) {
+    case 'active':
+      return todos.filter((t) => !t.completed)
+    case 'completed':
+      return todos.filter((t) => t.completed)
+    default:
+      return todos
+  }
+}
 
 export class TodoList extends HTMLElement {
   constructor() {
