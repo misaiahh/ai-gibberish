@@ -49,7 +49,7 @@ export class TodoList extends HTMLElement {
     for (const todo of filtered) {
       const item = document.createElement('todo-item')
       item.setAttribute('id', String(todo.id))
-      item.setAttribute('text', todo.text)
+      item.setAttribute('title', todo.title)
       item.setAttribute('completed', String(todo.completed))
 
       this.list.appendChild(item)
@@ -58,7 +58,7 @@ export class TodoList extends HTMLElement {
 
   /**
    * Updates todos and re-renders.
-   * @param {Array<{id: number, text: string, completed: boolean}>} todos
+   * @param {Array<{id: string, title: string, completed: boolean}>} todos
    */
   update(todos) {
     this.setAttribute('todos', JSON.stringify(todos))

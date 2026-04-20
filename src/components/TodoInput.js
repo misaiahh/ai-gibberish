@@ -96,14 +96,14 @@ export class TodoInput extends HTMLElement {
   }
 
   #dispatchAdd() {
-    const text = this.input.value.trim()
-    if (!text) return
+    const title = this.input.value.trim()
+    if (!title) return
 
-    this.#text = text
+    this.#text = title
     this.input.value = ''
     this.dispatchEvent(
       new CustomEvent('add', {
-        detail: { text },
+        detail: { title },
         bubbles: true,
         composed: true,
       })

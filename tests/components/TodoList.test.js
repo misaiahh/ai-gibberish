@@ -32,8 +32,8 @@ describe('TodoList', () => {
 
   it('renders todo items from todos attribute', () => {
     const todos = [
-      { id: 1, text: 'Buy milk', completed: false },
-      { id: 2, text: 'Walk dog', completed: true },
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: true },
     ]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
@@ -44,22 +44,22 @@ describe('TodoList', () => {
   })
 
   it('passes correct attributes to todo items', () => {
-    const todos = [{ id: 1, text: 'Buy milk', completed: false }]
+    const todos = [{ id: '1', title: 'Buy milk', completed: false }]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
     container.appendChild(el)
 
     const item = el.shadowRoot.querySelector('todo-item')
     expect(item.getAttribute('id')).toBe('1')
-    expect(item.getAttribute('text')).toBe('Buy milk')
+    expect(item.getAttribute('title')).toBe('Buy milk')
     expect(item.getAttribute('completed')).toBe('false')
   })
 
   it('filters todos by filter attribute', () => {
     const todos = [
-      { id: 1, text: 'Buy milk', completed: false },
-      { id: 2, text: 'Walk dog', completed: true },
-      { id: 3, text: 'Code', completed: false },
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: true },
+      { id: '3', title: 'Code', completed: false },
     ]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
@@ -72,8 +72,8 @@ describe('TodoList', () => {
 
   it('shows all todos when filter is all', () => {
     const todos = [
-      { id: 1, text: 'Buy milk', completed: false },
-      { id: 2, text: 'Walk dog', completed: true },
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: true },
     ]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
@@ -86,8 +86,8 @@ describe('TodoList', () => {
 
   it('shows no items when filter is completed and none are completed', () => {
     const todos = [
-      { id: 1, text: 'Buy milk', completed: false },
-      { id: 2, text: 'Walk dog', completed: false },
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: false },
     ]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
@@ -99,7 +99,7 @@ describe('TodoList', () => {
   })
 
   it('forwards toggle event from items', () => {
-    const todos = [{ id: 1, text: 'Buy milk', completed: false }]
+    const todos = [{ id: '1', title: 'Buy milk', completed: false }]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
     container.appendChild(el)
@@ -110,18 +110,18 @@ describe('TodoList', () => {
     // Dispatch toggle event on the todo-list (as a nested item would)
     el.dispatchEvent(
       new CustomEvent('toggle', {
-        detail: { id: 1 },
+        detail: { id: '1' },
         bubbles: true,
         composed: true,
       })
     )
 
     expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler.mock.calls[0][0].detail.id).toBe(1)
+    expect(handler.mock.calls[0][0].detail.id).toBe('1')
   })
 
   it('forwards delete event from items', () => {
-    const todos = [{ id: 1, text: 'Buy milk', completed: false }]
+    const todos = [{ id: '1', title: 'Buy milk', completed: false }]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
     container.appendChild(el)
@@ -132,31 +132,31 @@ describe('TodoList', () => {
     // Dispatch delete event on the todo-list (as a nested item would)
     el.dispatchEvent(
       new CustomEvent('delete', {
-        detail: { id: 1 },
+        detail: { id: '1' },
         bubbles: true,
         composed: true,
       })
     )
 
     expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler.mock.calls[0][0].detail.id).toBe(1)
+    expect(handler.mock.calls[0][0].detail.id).toBe('1')
   })
 
   it('updates and re-renders via update method', () => {
-    const todos = [{ id: 1, text: 'Buy milk', completed: false }]
+    const todos = [{ id: '1', title: 'Buy milk', completed: false }]
     const el = document.createElement('todo-list')
     el.setAttribute('todos', JSON.stringify(todos))
     container.appendChild(el)
 
     const updatedTodos = [
-      { id: 1, text: 'Buy milk', completed: false },
-      { id: 2, text: 'Walk dog', completed: true },
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: true },
     ]
     el.update(updatedTodos)
 
     const items = el.shadowRoot.querySelectorAll('todo-item')
     expect(items).toHaveLength(2)
-    expect(items[1].getAttribute('text')).toBe('Walk dog')
+    expect(items[1].getAttribute('title')).toBe('Walk dog')
   })
 
   it('renders empty list when todos is empty', () => {

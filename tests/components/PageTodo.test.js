@@ -1,33 +1,53 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import '../../src/pages/todo/PageTodo.js'
 import '../../src/components/TodoInput.js'
 import '../../src/components/TodoItem.js'
 import '../../src/components/TodoList.js'
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('PageTodo', () => {
-  let page
+  let container
 
   beforeEach(() => {
-    page = document.createElement('page-todo')
-    document.body.appendChild(page)
+    container = document.createElement('div')
+    document.body.appendChild(container)
+
+    window.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([]),
+      })
+    )
   })
 
   afterEach(() => {
-    document.body.removeChild(page)
-    page = null
+    document.body.removeChild(container)
+    container = null
+    vi.restoreAllMocks()
   })
 
-  it('renders a todo-input component', () => {
+  it('renders a todo-input component', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
     const input = page.shadowRoot.querySelector('todo-input')
     expect(input).toBeDefined()
   })
 
-  it('renders a todo-list component', () => {
+  it('renders a todo-list component', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
     const list = page.shadowRoot.querySelector('todo-list')
     expect(list).toBeDefined()
   })
 
-  it('renders filter buttons', () => {
+  it('renders filter buttons', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
     const filterBtns = page.shadowRoot.querySelectorAll('[data-filter]')
     expect(filterBtns).toHaveLength(3)
     expect(filterBtns[0].textContent.trim()).toBe('All')
@@ -35,13 +55,52 @@ describe('PageTodo', () => {
     expect(filterBtns[2].textContent.trim()).toBe('Completed')
   })
 
-  it('renders an item count footer', () => {
+  it('renders an item count footer', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
     const countEl = page.shadowRoot.querySelector('[data-id="itemCount"]')
     expect(countEl).toBeDefined()
     expect(countEl.textContent).toContain('item')
   })
 
-  it('snapshot matches shadow DOM structure', () => {
+  it('snapshot matches shadow DOM structure', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
     expect(page.shadowRoot.innerHTML).toMatchSnapshot()
+  })
+
+  it('does NOT call API when element is created (constructor)', () => {
+    const page = document.createElement('page-todo')
+    expect(window.fetch).not.toHaveBeenCalled()
+  })
+
+  it('calls API exactly once when element is connected to DOM', async () => {
+    const page = document.createElement('page-todo')
+    expect(window.fetch).not.toHaveBeenCalled()
+
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(window.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('calls API exactly once when element is connected multiple times', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(window.fetch).toHaveBeenCalledTimes(1)
+
+    // Remove and re-append — connectedCallback fires again
+    container.removeChild(page)
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Should still be 1, not 2
+    expect(window.fetch).toHaveBeenCalledTimes(1)
   })
 })

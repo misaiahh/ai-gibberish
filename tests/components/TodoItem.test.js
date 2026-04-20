@@ -16,8 +16,8 @@ describe('TodoItem', () => {
 
   it('renders the component', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('id', '1')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
@@ -25,9 +25,9 @@ describe('TodoItem', () => {
     expect(el.shadowRoot).toBeTruthy()
   })
 
-  it('shows the todo text', () => {
+  it('shows the todo title', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('title', 'Buy milk')
     container.appendChild(el)
 
     const textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
@@ -36,7 +36,7 @@ describe('TodoItem', () => {
 
   it('applies completed class when completed', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'true')
     container.appendChild(el)
 
@@ -46,7 +46,7 @@ describe('TodoItem', () => {
 
   it('does not apply completed class when not completed', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
@@ -56,7 +56,7 @@ describe('TodoItem', () => {
 
   it('checks checkbox when completed', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'true')
     container.appendChild(el)
 
@@ -66,7 +66,7 @@ describe('TodoItem', () => {
 
   it('has a delete button', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('title', 'Buy milk')
     container.appendChild(el)
 
     const deleteBtn = el.shadowRoot.querySelector('[data-id="deleteBtn"]')
@@ -76,8 +76,8 @@ describe('TodoItem', () => {
 
   it('dispatches toggle event on checkbox change', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('id', '42')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
     container.appendChild(el)
 
     const handler = vi.fn()
@@ -87,13 +87,13 @@ describe('TodoItem', () => {
     checkbox.click()
 
     expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler.mock.calls[0][0].detail.id).toBe(42)
+    expect(handler.mock.calls[0][0].detail.id).toBe('abc123')
   })
 
   it('dispatches delete event on delete button click', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('id', '42')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
     container.appendChild(el)
 
     const handler = vi.fn()
@@ -102,12 +102,12 @@ describe('TodoItem', () => {
     el.deleteBtn.click()
 
     expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler.mock.calls[0][0].detail.id).toBe(42)
+    expect(handler.mock.calls[0][0].detail.id).toBe('abc123')
   })
 
   it('updates when attributes change', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
@@ -115,7 +115,7 @@ describe('TodoItem', () => {
     expect(textSpan.textContent).toBe('Buy milk')
     expect(textSpan.classList.contains('completed')).toBe(false)
 
-    el.setAttribute('text', 'Walk dog')
+    el.setAttribute('title', 'Walk dog')
     el.setAttribute('completed', 'true')
 
     textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
@@ -125,8 +125,8 @@ describe('TodoItem', () => {
 
   it('matches shadow DOM snapshot', () => {
     const el = document.createElement('todo-item')
-    el.setAttribute('id', '1')
-    el.setAttribute('text', 'Buy milk')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
