@@ -11,11 +11,11 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
           font-size: 24px;
           font-weight: 700;
           margin-bottom: 16px;
-          color: #333;
+          color: var(--text-primary, #333);
         }
         .settings p {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           margin-bottom: 16px;
         }
         .settingRow {
@@ -23,15 +23,15 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
           align-items: center;
           justify-content: space-between;
           padding: 12px 0;
-          border-bottom: 1px solid #f0f0f0;
+          border-bottom: 1px solid var(--border-color, #f0f0f0);
         }
         .settingRow label {
           font-size: 14px;
-          color: #333;
+          color: var(--text-primary, #333);
         }
         .settingRow span {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           font-family: monospace;
         }
         .toggle {
@@ -49,7 +49,7 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
         .toggle .slider {
           position: absolute;
           inset: 0;
-          background: #ccc;
+          background: var(--bg-btn-toggle-off, #ccc);
           border-radius: 24px;
           transition: background 0.2s;
         }
@@ -60,12 +60,12 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
           height: 18px;
           left: 3px;
           top: 3px;
-          background: #fff;
+          background: var(--bg-card, #fff);
           border-radius: 50%;
           transition: transform 0.2s;
         }
         .toggle input:checked + .slider {
-          background: #4a90d9;
+          background: var(--accent-primary, #4a90d9);
         }
         .toggle input:checked + .slider::before {
           transform: translateX(20px);
@@ -75,15 +75,15 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
         }
         .dangerBtn {
           padding: 8px 16px;
-          background: #e74c3c;
-          color: #fff;
+          background: var(--bg-btn-danger, #e74c3c);
+          color: var(--text-header, #fff);
           border: none;
           border-radius: 4px;
           font-size: 14px;
           cursor: pointer;
         }
         .dangerBtn:hover {
-          background: #c0392b;
+          background: var(--bg-btn-danger-hover, #c0392b);
         }
         .modal {
           position: fixed;
@@ -91,29 +91,29 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(0,0,0,0.4);
+          background: var(--bg-modal-overlay, rgba(0,0,0,0.4));
           z-index: 1000;
         }
         .modal.hidden {
           display: none;
         }
         .modalContent {
-          background: #fff;
+          background: var(--bg-modal-content, #fff);
           border-radius: 8px;
           padding: 24px;
           max-width: 400px;
           width: 100%;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          box-shadow: 0 4px 20px var(--shadow-modal, rgba(0,0,0,0.3));
         }
         .modalContent h3 {
           font-size: 18px;
           font-weight: 700;
-          color: #333;
+          color: var(--text-primary, #333);
           margin-bottom: 12px;
         }
         .modalContent p {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           margin-bottom: 20px;
         }
         .modalActions {
@@ -126,20 +126,20 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
           border-radius: 4px;
           font-size: 14px;
           cursor: pointer;
-          border: 1px solid #ddd;
-          background: #fff;
-          color: #333;
+          border: 1px solid var(--border-input, #ddd);
+          background: var(--bg-card, #fff);
+          color: var(--text-primary, #333);
         }
         .modalActions button:hover {
-          background: #f5f5f5;
+          background: var(--bg-footer, #f5f5f5);
         }
         .modalActions button.danger {
-          background: #e74c3c;
-          color: #fff;
-          border-color: #e74c3c;
+          background: var(--bg-btn-danger, #e74c3c);
+          color: var(--text-header, #fff);
+          border-color: var(--bg-btn-danger, #e74c3c);
         }
         .modalActions button.danger:hover {
-          background: #c0392b;
+          background: var(--bg-btn-danger-hover, #c0392b);
         }
       </style>
       <div class="settings">
@@ -169,6 +169,16 @@ exports[`PageSettings > snapshot matches shadow DOM structure 1`] = `
             <span data-id="toggleValue">true</span>
             <label class="toggle">
               <input type="checkbox" data-id="toggle" data-pref="serverStorageEnabled" checked="">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settingRow">
+          <label>Theme</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span data-id="themeValue">light</span>
+            <label class="toggle">
+              <input type="checkbox" data-id="toggle" data-pref="theme">
               <span class="slider"></span>
             </label>
           </div>

@@ -65,17 +65,19 @@ export class PageTodo extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         .todoApp {
-          background: #fff;
+          background: var(--bg-card, #fff);
           border-radius: 8px;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-          padding: 24px;
+          box-shadow: var(--shadow-card, 0 2px 12px rgba(0, 0, 0, 0.1));
+          padding: 32px;
+          max-width: 900px;
+          width: 100%;
         }
         .todoApp h1 {
           font-size: 24px;
           font-weight: 700;
           text-align: center;
           margin-bottom: 20px;
-          color: #333;
+          color: var(--text-primary, #333);
         }
         .filterContainer {
           display: flex;
@@ -85,17 +87,17 @@ export class PageTodo extends HTMLElement {
         }
         .filterContainer button {
           padding: 6px 14px;
-          border: 1px solid #ddd;
-          background: #fff;
+          border: 1px solid var(--border-input, #ddd);
+          background: var(--bg-card, #fff);
           border-radius: 4px;
           font-size: 13px;
           cursor: pointer;
           transition: all 0.2s;
         }
         .filterContainer button.active {
-          background: #4a90d9;
-          color: #fff;
-          border-color: #4a90d9;
+          background: var(--bg-filter-active, #4a90d9);
+          color: var(--text-header, #fff);
+          border-color: var(--bg-filter-active, #4a90d9);
         }
         .footer {
           display: flex;
@@ -103,8 +105,8 @@ export class PageTodo extends HTMLElement {
           align-items: center;
           padding: 12px 8px 0;
           font-size: 13px;
-          color: #888;
-          border-top: 1px solid #f0f0f0;
+          color: var(--text-muted, #888);
+          border-top: 1px solid var(--border-color, #f0f0f0);
           margin-top: 4px;
         }
       </style>
@@ -119,7 +121,7 @@ export class PageTodo extends HTMLElement {
         <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}'></todo-list>
         <div class="footer" data-id="footer">
           <span class="item-count" data-id="itemCount"></span>
-          <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:#e74c3c;font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
+          <button class="clear-completed" data-id="clearBtn" style="background:none;border:none;color:var(--bg-btn-danger,#e74c3c);font-size:13px;cursor:pointer;display:none;">Clear Completed</button>
         </div>
       </div>
     `

@@ -1,6 +1,7 @@
 import { config } from '../../config.js'
 import { preferencesService } from '../../service/preferencesService.js'
 import { storageService } from '../../service/storageService.js'
+import { themeManager } from '../../service/themeManager.js'
 
 export class PageSettings extends HTMLElement {
   #preferences = null
@@ -37,10 +38,19 @@ export class PageSettings extends HTMLElement {
 
     this.shadowRoot.addEventListener('change', async (e) => {
       const toggle = e.target.closest('[data-id="toggle"]')
-      if (!toggle || !this.#preferences) return
+      if (!toggle) return
 
       const pref = toggle.dataset.pref
       const value = toggle.checked
+
+      // Theme toggle
+      if (pref === 'theme') {
+        themeManager.setTheme(value ? 'dark' : 'light')
+        this.shadowRoot.querySelector('[data-id="themeValue"]').textContent = themeManager.getTheme()
+        return
+      }
+
+      if (!this.#preferences) return
 
       // Warn when turning off client storage
       if (pref === 'clientStorageEnabled' && !value) {
@@ -65,7 +75,6 @@ export class PageSettings extends HTMLElement {
           config.preferences.serverStorageEnabled = value
           config.serverStorageEnabled = value
         }
-
         toggle.closest('.settingRow').querySelector('[data-id="toggleValue"]').textContent = value
       } catch {
         toggle.checked = !value
@@ -106,11 +115,11 @@ export class PageSettings extends HTMLElement {
           font-size: 24px;
           font-weight: 700;
           margin-bottom: 16px;
-          color: #333;
+          color: var(--text-primary, #333);
         }
         .settings p {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           margin-bottom: 16px;
         }
         .settingRow {
@@ -118,15 +127,15 @@ export class PageSettings extends HTMLElement {
           align-items: center;
           justify-content: space-between;
           padding: 12px 0;
-          border-bottom: 1px solid #f0f0f0;
+          border-bottom: 1px solid var(--border-color, #f0f0f0);
         }
         .settingRow label {
           font-size: 14px;
-          color: #333;
+          color: var(--text-primary, #333);
         }
         .settingRow span {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           font-family: monospace;
         }
         .toggle {
@@ -144,7 +153,7 @@ export class PageSettings extends HTMLElement {
         .toggle .slider {
           position: absolute;
           inset: 0;
-          background: #ccc;
+          background: var(--bg-btn-toggle-off, #ccc);
           border-radius: 24px;
           transition: background 0.2s;
         }
@@ -155,12 +164,12 @@ export class PageSettings extends HTMLElement {
           height: 18px;
           left: 3px;
           top: 3px;
-          background: #fff;
+          background: var(--bg-card, #fff);
           border-radius: 50%;
           transition: transform 0.2s;
         }
         .toggle input:checked + .slider {
-          background: #4a90d9;
+          background: var(--accent-primary, #4a90d9);
         }
         .toggle input:checked + .slider::before {
           transform: translateX(20px);
@@ -170,15 +179,15 @@ export class PageSettings extends HTMLElement {
         }
         .dangerBtn {
           padding: 8px 16px;
-          background: #e74c3c;
-          color: #fff;
+          background: var(--bg-btn-danger, #e74c3c);
+          color: var(--text-header, #fff);
           border: none;
           border-radius: 4px;
           font-size: 14px;
           cursor: pointer;
         }
         .dangerBtn:hover {
-          background: #c0392b;
+          background: var(--bg-btn-danger-hover, #c0392b);
         }
         .modal {
           position: fixed;
@@ -186,29 +195,29 @@ export class PageSettings extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(0,0,0,0.4);
+          background: var(--bg-modal-overlay, rgba(0,0,0,0.4));
           z-index: 1000;
         }
         .modal.hidden {
           display: none;
         }
         .modalContent {
-          background: #fff;
+          background: var(--bg-modal-content, #fff);
           border-radius: 8px;
           padding: 24px;
           max-width: 400px;
           width: 100%;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          box-shadow: 0 4px 20px var(--shadow-modal, rgba(0,0,0,0.3));
         }
         .modalContent h3 {
           font-size: 18px;
           font-weight: 700;
-          color: #333;
+          color: var(--text-primary, #333);
           margin-bottom: 12px;
         }
         .modalContent p {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           margin-bottom: 20px;
         }
         .modalActions {
@@ -221,20 +230,20 @@ export class PageSettings extends HTMLElement {
           border-radius: 4px;
           font-size: 14px;
           cursor: pointer;
-          border: 1px solid #ddd;
-          background: #fff;
-          color: #333;
+          border: 1px solid var(--border-input, #ddd);
+          background: var(--bg-card, #fff);
+          color: var(--text-primary, #333);
         }
         .modalActions button:hover {
-          background: #f5f5f5;
+          background: var(--bg-footer, #f5f5f5);
         }
         .modalActions button.danger {
-          background: #e74c3c;
-          color: #fff;
-          border-color: #e74c3c;
+          background: var(--bg-btn-danger, #e74c3c);
+          color: var(--text-header, #fff);
+          border-color: var(--bg-btn-danger, #e74c3c);
         }
         .modalActions button.danger:hover {
-          background: #c0392b;
+          background: var(--bg-btn-danger-hover, #c0392b);
         }
       </style>
       <div class="settings">
@@ -264,6 +273,16 @@ export class PageSettings extends HTMLElement {
             <span data-id="toggleValue">${serverEnabled}</span>
             <label class="toggle">
               <input type="checkbox" data-id="toggle" data-pref="serverStorageEnabled" ${serverEnabled ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settingRow">
+          <label>Theme</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span data-id="themeValue">${themeManager.getTheme()}</span>
+            <label class="toggle">
+              <input type="checkbox" data-id="toggle" data-pref="theme">
               <span class="slider"></span>
             </label>
           </div>

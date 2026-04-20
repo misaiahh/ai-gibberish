@@ -42,7 +42,7 @@ export class NavLink extends HTMLElement {
           transition: background 0.2s;
         }
         .link.active {
-          background: rgba(255,255,255,0.25);
+          background: var(--bg-nav-active, rgba(255,255,255,0.25));
         }
       </style>
       <span class="link" data-id="link" part="link"><slot></slot></span>

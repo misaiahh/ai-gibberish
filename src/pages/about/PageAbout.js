@@ -16,12 +16,12 @@ export class PageAbout extends HTMLElement {
           font-size: 24px;
           font-weight: 700;
           margin-bottom: 16px;
-          color: #333;
+          color: var(--text-primary, #333);
         }
         .about p {
           font-size: 14px;
           line-height: 1.6;
-          color: #555;
+          color: var(--text-secondary, #555);
           margin-bottom: 12px;
         }
         .about ul {
@@ -30,7 +30,7 @@ export class PageAbout extends HTMLElement {
         }
         .about li {
           font-size: 14px;
-          color: #555;
+          color: var(--text-secondary, #555);
           margin-bottom: 4px;
         }
       </style>
