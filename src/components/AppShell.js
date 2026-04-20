@@ -127,9 +127,6 @@ export class AppShell extends HTMLElement {
 
   navigate(path) {
     history.pushState({}, '', path)
-    window.dispatchEvent(new CustomEvent('route-change', {
-      detail: { path },
-    }))
   }
 }
 
