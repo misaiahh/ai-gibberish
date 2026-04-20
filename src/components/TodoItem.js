@@ -16,7 +16,7 @@ export class TodoItem extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['text', 'completed', 'id']
+    return ['title', 'completed', 'id']
   }
 
   attributeChangedCallback() {
@@ -30,7 +30,7 @@ export class TodoItem extends HTMLElement {
   }
 
   #render() {
-    const text = this.getAttribute('text') || ''
+    const title = this.getAttribute('title') || ''
     const completed = this.getAttribute('completed') === 'true'
     const id = this.getAttribute('id') || ''
 
@@ -77,7 +77,7 @@ export class TodoItem extends HTMLElement {
       </style>
       <label class="todoItem">
         <input type="checkbox" data-id="checkbox" ${completed ? 'checked' : ''} />
-        <span class="todoText ${completed ? 'completed' : ''}" data-id="todoText">${text}</span>
+        <span class="todoText ${completed ? 'completed' : ''}" data-id="todoText">${title}</span>
         <button class="deleteBtn" data-id="deleteBtn" title="Delete">&times;</button>
       </label>
     `
@@ -89,7 +89,7 @@ export class TodoItem extends HTMLElement {
     this.checkbox.addEventListener('change', () => {
       this.dispatchEvent(
         new CustomEvent('toggle', {
-          detail: { id: Number(id) },
+          detail: { id },
           bubbles: true,
           composed: true,
         })
@@ -99,7 +99,7 @@ export class TodoItem extends HTMLElement {
     this.deleteBtn.addEventListener('click', () => {
       this.dispatchEvent(
         new CustomEvent('delete', {
-          detail: { id: Number(id) },
+          detail: { id },
           bubbles: true,
           composed: true,
         })

@@ -1,124 +1,171 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { todoFactory } from '../../src/factory/todoFactory.js'
-import { storageService } from '../../src/service/storageService.js'
-import { config } from '../../src/config.js'
+
+const uuid = () => crypto.randomUUID()
+
+const makeTodo = (overrides = {}) => ({
+  id: uuid(),
+  title: overrides.title ?? 'test todo',
+  completed: overrides.completed ?? false,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+})
+
+// Per-method mocks
+const createMock = vi.fn()
+const getAllMock = vi.fn(() => [])
+const updateMock = vi.fn()
+const removeMock = vi.fn()
+
+// Global fetch mock - apiService calls fetch internally
+const originalFetch = globalThis.fetch
+globalThis.fetch = vi.fn(async (url, init) => {
+  const path = url.replace('/api', '')
+
+  if (path === '/todos') {
+    if (init?.method === 'POST') {
+      const body = JSON.parse(init.body)
+      const todo = createMock(body.title)
+      return { ok: true, json: () => Promise.resolve(todo) }
+    }
+    if (init?.method === 'GET') {
+      return { ok: true, json: () => Promise.resolve(getAllMock()) }
+    }
+  }
+
+  if (path.startsWith('/todos/')) {
+    const id = path.replace('/todos/', '')
+    if (init?.method === 'PATCH') {
+      const body = JSON.parse(init.body)
+      const todo = updateMock(id, body)
+      return { ok: true, json: () => Promise.resolve(todo) }
+    }
+    if (init?.method === 'DELETE') {
+      removeMock(id)
+      return { ok: true }
+    }
+  }
+
+  return { ok: true, json: () => Promise.resolve([]) }
+})
 
 describe('todoFactory', () => {
   let store
 
   beforeEach(() => {
     store = todoFactory()
+    vi.clearAllMocks()
+    createMock.mockImplementation((title) => makeTodo({ title }))
+    updateMock.mockImplementation((id, patch) => makeTodo({ id, completed: patch.completed }))
+    getAllMock.mockReturnValue([])
+    removeMock.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
-    store.reset()
-    storageService.remove()
+    vi.restoreAllMocks()
   })
 
   describe('create', () => {
-    it('creates a todo with the given text', () => {
-      const todo = store.create('Buy milk')
-
-      expect(todo.text).toBe('Buy milk')
+    it('creates a todo with the given title', async () => {
+      const todo = await store.create('Buy milk')
+      expect(todo.title).toBe('Buy milk')
       expect(todo.completed).toBe(false)
+      expect(typeof todo.id).toBe('string')
+      expect(todo.createdAt).toBeDefined()
+      expect(todo.updatedAt).toBeDefined()
     })
 
-    it('trims whitespace from text', () => {
-      const todo = store.create('  Buy milk  ')
-      expect(todo.text).toBe('Buy milk')
+    it('trims whitespace from title', async () => {
+      const todo = await store.create('  Buy milk  ')
+      expect(todo.title).toBe('Buy milk')
     })
 
-    it('assigns incrementing IDs', () => {
-      const a = store.create('A')
-      const b = store.create('B')
-
-      expect(a.id).toBe(1)
-      expect(b.id).toBe(2)
+    it('assigns string IDs (UUIDs)', async () => {
+      const a = await store.create('A')
+      const b = await store.create('B')
+      expect(typeof a.id).toBe('string')
+      expect(typeof b.id).toBe('string')
+      expect(a.id).not.toBe(b.id)
     })
   })
 
   describe('getAll', () => {
-    it('returns an empty array initially', () => {
-      expect(store.getAll()).toEqual([])
+    it('returns an empty array initially', async () => {
+      expect(await store.getAll()).toEqual([])
     })
 
-    it('returns all created todos', () => {
-      store.create('A')
-      store.create('B')
-
-      expect(store.getAll()).toHaveLength(2)
-      expect(store.getAll()[0].text).toBe('A')
-      expect(store.getAll()[1].text).toBe('B')
+    it('returns all created todos', async () => {
+      await store.create('A')
+      await store.create('B')
+      const all = await store.getAll()
+      expect(all).toHaveLength(2)
+      expect(all[0].title).toBe('A')
+      expect(all[1].title).toBe('B')
     })
   })
 
   describe('delete', () => {
-    it('removes a todo by ID', () => {
-      store.create('A')
-      store.create('B')
-      store.delete(1)
-
-      expect(store.getAll()).toHaveLength(1)
-      expect(store.getAll()[0].text).toBe('B')
+    it('removes a todo by ID', async () => {
+      const a = await store.create('A')
+      await store.create('B')
+      await store.delete(a.id)
+      const all = await store.getAll()
+      expect(all).toHaveLength(1)
+      expect(all[0].title).toBe('B')
     })
 
-    it('does nothing when ID does not exist', () => {
-      store.create('A')
-      store.delete(99)
-
-      expect(store.getAll()).toHaveLength(1)
+    it('does nothing when ID does not exist', async () => {
+      await store.create('A')
+      await store.delete('nonexistent')
+      expect((await store.getAll()).length).toBe(1)
     })
   })
 
   describe('toggle', () => {
-    it('toggles completed from false to true', () => {
-      const todo = store.create('A')
-      store.toggle(todo.id)
-
+    it('toggles completed from false to true', async () => {
+      const todo = await store.create('A')
+      await store.toggle(todo.id)
       expect(todo.completed).toBe(true)
     })
 
-    it('toggles completed from true to false', () => {
-      const todo = store.create('A')
-      store.toggle(todo.id)
-      store.toggle(todo.id)
-
+    it('toggles completed from true to false', async () => {
+      const todo = await store.create('A')
+      await store.toggle(todo.id)
+      await store.toggle(todo.id)
       expect(todo.completed).toBe(false)
     })
 
-    it('does not affect other todos', () => {
-      const a = store.create('A')
-      const b = store.create('B')
-      store.toggle(a.id)
-
+    it('does not affect other todos', async () => {
+      const a = await store.create('A')
+      const b = await store.create('B')
+      await store.toggle(a.id)
       expect(a.completed).toBe(true)
       expect(b.completed).toBe(false)
     })
 
-    it('does nothing when ID does not exist', () => {
-      store.create('A')
-      store.toggle(99)
+    it('does nothing when ID does not exist', async () => {
+      await store.create('A')
+      await store.toggle('nonexistent')
       expect(store.getActiveCount()).toBe(1)
     })
   })
 
   describe('clearCompleted', () => {
-    it('removes all completed todos', () => {
-      const a = store.create('A')
-      store.create('B')
-      store.toggle(a.id)
-      store.clearCompleted()
-
-      expect(store.getAll()).toHaveLength(1)
-      expect(store.getAll()[0].text).toBe('B')
+    it('removes all completed todos', async () => {
+      const a = await store.create('A')
+      await store.create('B')
+      await store.toggle(a.id)
+      await store.clearCompleted()
+      const all = await store.getAll()
+      expect(all).toHaveLength(1)
+      expect(all[0].title).toBe('B')
     })
 
-    it('does nothing when no todos are completed', () => {
-      store.create('A')
-      store.create('B')
-      store.clearCompleted()
-
-      expect(store.getAll()).toHaveLength(2)
+    it('does nothing when no todos are completed', async () => {
+      await store.create('A')
+      await store.create('B')
+      await store.clearCompleted()
+      expect((await store.getAll()).length).toBe(2)
     })
   })
 
@@ -127,12 +174,11 @@ describe('todoFactory', () => {
       expect(store.getActiveCount()).toBe(0)
     })
 
-    it('returns correct count of active todos', () => {
-      const a = store.create('A')
-      store.create('B')
-      store.create('C')
-      store.toggle(a.id)
-
+    it('returns correct count of active todos', async () => {
+      const a = await store.create('A')
+      await store.create('B')
+      await store.create('C')
+      await store.toggle(a.id)
       expect(store.getActiveCount()).toBe(2)
     })
   })
@@ -142,91 +188,19 @@ describe('todoFactory', () => {
       expect(store.getCompletedCount()).toBe(0)
     })
 
-    it('returns correct count of completed todos', () => {
-      const a = store.create('A')
-      store.create('B')
-      store.toggle(a.id)
-
+    it('returns correct count of completed todos', async () => {
+      const a = await store.create('A')
+      await store.create('B')
+      await store.toggle(a.id)
       expect(store.getCompletedCount()).toBe(1)
     })
   })
 
   describe('reset', () => {
-    it('clears all todos and resets ID counter', () => {
-      store.create('A')
-      store.reset()
-
-      expect(store.getAll()).toEqual([])
-
-      const todo = store.create('A')
-      expect(todo.id).toBe(1)
-    })
-  })
-
-  describe('persistence', () => {
-    it('persists todos on create', () => {
-      store.create('Buy milk')
-      const stored = JSON.parse(localStorage.getItem(config.storageKey))
-      expect(stored).toHaveLength(1)
-      expect(stored[0].text).toBe('Buy milk')
-    })
-
-    it('persists todos on delete', () => {
-      store.create('A')
-      store.create('B')
-      store.delete(1)
-
-      const stored = JSON.parse(localStorage.getItem(config.storageKey))
-      expect(stored).toHaveLength(1)
-      expect(stored[0].text).toBe('B')
-    })
-
-    it('persists todos on toggle', () => {
-      const todo = store.create('A')
-      store.toggle(todo.id)
-
-      const stored = JSON.parse(localStorage.getItem(config.storageKey))
-      expect(stored[0].completed).toBe(true)
-    })
-
-    it('persists todos on clearCompleted', () => {
-      const a = store.create('A')
-      store.create('B')
-      store.toggle(a.id)
-      store.clearCompleted()
-
-      const stored = JSON.parse(localStorage.getItem(config.storageKey))
-      expect(stored).toHaveLength(1)
-      expect(stored[0].text).toBe('B')
-    })
-
-    it('persists todos on reset', () => {
-      store.create('A')
-      store.reset()
-
-      expect(localStorage.getItem(config.storageKey)).toBeNull()
-    })
-
-    it('loads existing todos from storage on init', () => {
-      store.reset()
-      localStorage.setItem(config.storageKey, JSON.stringify([
-        { id: 1, text: 'Load me', completed: false },
-      ]))
-
-      const newStore = todoFactory()
-      expect(newStore.getAll()).toHaveLength(1)
-      expect(newStore.getAll()[0].text).toBe('Load me')
-    })
-
-    it('resumes ID counter from stored todos', () => {
-      store.reset()
-      localStorage.setItem(config.storageKey, JSON.stringify([
-        { id: 5, text: 'Old todo', completed: false },
-      ]))
-
-      const newStore = todoFactory()
-      const todo = newStore.create('New todo')
-      expect(todo.id).toBe(6)
+    it('clears all todos', async () => {
+      await store.create('A')
+      await store.reset()
+      expect(await store.getAll()).toEqual([])
     })
   })
 })

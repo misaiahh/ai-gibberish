@@ -55,7 +55,7 @@ describe('TodoInput', () => {
     el.button.click()
 
     expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler.mock.calls[0][0].detail.text).toBe('Buy milk')
+    expect(handler.mock.calls[0][0].detail.title).toBe('Buy milk')
   })
 
   it('dispatches add event on Enter key', () => {
@@ -71,7 +71,7 @@ describe('TodoInput', () => {
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
 
     expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler.mock.calls[0][0].detail.text).toBe('Buy milk')
+    expect(handler.mock.calls[0][0].detail.title).toBe('Buy milk')
   })
 
   it('does not dispatch event for empty input', () => {

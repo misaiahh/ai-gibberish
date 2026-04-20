@@ -8,29 +8,34 @@ export class PageTodo extends HTMLElement {
     super()
     this.attachShadow({ mode: 'open' })
     this.#bindEvents()
+    this.#init()
+  }
+
+  async #init() {
+    await this.#store.getAll()
     this.#render()
   }
 
   #bindEvents() {
-    this.addEventListener('add', (e) => {
+    this.addEventListener('add', async (e) => {
       e.stopPropagation()
-      this.#store.create(e.detail.text)
-      this.#updateList()
+      await this.#store.create(e.detail.title)
+      await this.#updateList()
     })
 
-    this.addEventListener('toggle', (e) => {
+    this.addEventListener('toggle', async (e) => {
       e.stopPropagation()
-      this.#store.toggle(e.detail.id)
-      this.#updateList()
+      await this.#store.toggle(e.detail.id)
+      await this.#updateList()
     })
 
-    this.addEventListener('delete', (e) => {
+    this.addEventListener('delete', async (e) => {
       e.stopPropagation()
-      this.#store.delete(e.detail.id)
-      this.#updateList()
+      await this.#store.delete(e.detail.id)
+      await this.#updateList()
     })
 
-    this.shadowRoot.addEventListener('click', (e) => {
+    this.shadowRoot.addEventListener('click', async (e) => {
       const realTarget = e.target
 
       const filterBtn = realTarget.closest('[data-filter]')
@@ -42,14 +47,14 @@ export class PageTodo extends HTMLElement {
 
       const clearBtn = realTarget.closest('.clear-completed')
       if (clearBtn) {
-        this.#store.clearCompleted()
-        this.#updateList()
+        await this.#store.clearCompleted()
+        await this.#updateList()
       }
     })
   }
 
   #render() {
-    const todos = this.#store.getAll()
+    const todos = this.#store.get()
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -116,8 +121,8 @@ export class PageTodo extends HTMLElement {
     this.#populateFooter()
   }
 
-  #updateList() {
-    const todos = this.#store.getAll()
+  async #updateList() {
+    const todos = this.#store.get()
     const list = this.shadowRoot.querySelector('todo-list')
     if (list) {
       list.update(todos)

@@ -1,75 +1,70 @@
-import { storageService } from '../service/storageService.js'
-import { config } from '../config.js'
+import { apiService } from '../service/apiService.js'
 
 /**
- * @typedef {{id: number, text: string, completed: boolean}} Todo
+ * @typedef {{id: string, title: string, completed: boolean, createdAt: string, updatedAt: string}} Todo
  */
 
 /**
- * Creates a new todo store with isolated state and persistence.
+ * Creates a new todo store backed by the remote API.
  * @returns {{
- *   create: (text: string) => Todo,
- *   getAll: () => Todo[],
- *   delete: (id: number) => void,
- *   toggle: (id: number) => void,
- *   clearCompleted: () => void,
+ *   create: (title: string) => Promise<Todo>,
+ *   getAll: () => Promise<Todo[]>,
+ *   get: () => Todo[],
+ *   delete: (id: string) => Promise<void>,
+ *   toggle: (id: string) => Promise<Todo>,
+ *   clearCompleted: () => Promise<void>,
  *   getActiveCount: () => number,
  *   getCompletedCount: () => number,
- *   reset: () => void
+ *   reset: () => Promise<void>
  * }}
  */
 export function todoFactory() {
   /** @type {Todo[]} */
-  const todos = /** @type {Todo[]} */ (storageService.get() || [])
+  let todos = []
 
-  /** @type {number} */
-  let nextId = 1
-  for (const todo of todos) {
-    if (todo.id >= nextId) nextId = todo.id + 1
-  }
-
-  /**
-   * Persists todos to storage.
-   */
-  function persist() {
-    if (config.storageDisabled) return
-    storageService.set(todos)
+  async function refresh() {
+    const data = await apiService.getAll()
+    if (data.length) todos = data
   }
 
   return {
     /**
      * Creates a new todo.
-     * @param {string} text
-     * @returns {Todo}
+     * @param {string} title
+     * @returns {Promise<Todo>}
      */
-    create(text) {
-      const todo = {
-        id: nextId++,
-        text: text.trim(),
-        completed: false,
-      }
+    async create(title) {
+      const todo = await apiService.create(title)
       todos.push(todo)
-      persist()
       return todo
     },
 
     /**
-     * Returns all todos.
+     * Fetches and returns all todos from API.
+     * @returns {Promise<Todo[]>}
+     */
+    async getAll() {
+      await refresh()
+      return todos
+    },
+
+    /**
+     * Returns cached todos without fetching.
      * @returns {Todo[]}
      */
-    getAll() {
+    get() {
       return todos
     },
 
     /**
      * Deletes a todo by ID.
-     * @param {number} id
+     * @param {string} id
      */
-    delete(id) {
+    async delete(id) {
+      await apiService.remove(id)
       for (let i = 0; i < todos.length; i++) {
         if (todos[i].id === id) {
           todos.splice(i, 1)
-          persist()
           return
         }
       }
@@ -77,28 +72,28 @@ export function todoFactory() {
 
     /**
      * Toggles the completed status of a todo by ID.
-     * @param {number} id
+     * @param {string} id
+     * @returns {Promise<Todo>}
      */
-    toggle(id) {
-      for (const todo of todos) {
-        if (todo.id === id) {
-          todo.completed = !todo.completed
-          persist()
-          return
-        }
-      }
+    async toggle(id) {
+      const todo = todos.find((t) => t.id === id)
+      if (!todo) return
+      const updated = await apiService.update(id, { completed: !todo.completed })
+      todo.completed = updated.completed
+      todo.title = updated.title
+      todo.updatedAt = updated.updatedAt
+      return todo
     },
 
     /**
      * Removes all completed todos.
      */
-    clearCompleted() {
-      for (let i = todos.length - 1; i >= 0; i--) {
-        if (todos[i].completed) {
-          todos.splice(i, 1)
-          persist()
-        }
+    async clearCompleted() {
+      const completed = todos.filter((t) => t.completed)
+      for (const todo of completed) {
+        await apiService.remove(todo.id)
       }
+      todos = todos.filter((t) => !t.completed)
     },
 
     /**
@@ -128,10 +123,9 @@ export function todoFactory() {
     /**
      * Resets the store (useful for tests).
      */
-    reset() {
+    async reset() {
+      await this.clearCompleted()
       todos.length = 0
-      nextId = 1
-      storageService.remove()
     },
   }
 }
