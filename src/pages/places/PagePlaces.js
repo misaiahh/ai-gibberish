@@ -85,9 +85,8 @@ export class PagePlaces extends HTMLElement {
   }
 
   #renderPlaceTree(places, depth = 0) {
-    const rootPlaces = this.#getRootPlaces()
     let html = ''
-    for (const place of rootPlaces) {
+    for (const place of places) {
       html += this.#renderPlace(place, depth)
       const children = this.#getChildren(place.id)
       if (children.length > 0) {
@@ -101,11 +100,11 @@ export class PagePlaces extends HTMLElement {
     const indent = depth * 24
     const childCount = this.#getChildren(place.id).length
     return `
-      <div class="placeRow" style="padding-left: ${indent}px;">
+      <li class="placeRow" style="padding-left: ${indent}px;">
         <span class="placeName">${place.name}</span>
         ${childCount > 0 ? `<span class="childCount">(${childCount} sub-place${childCount !== 1 ? 'ces' : ''})</span>` : ''}
         <button class="deleteBtn" data-action="delete-place" data-place-id="${place.id}" title="Delete place">&times;</button>
-      </div>
+      </li>
     `
   }
 
@@ -115,7 +114,7 @@ export class PagePlaces extends HTMLElement {
       .map((p) => `<option value="${p.id}">${p.name}</option>`)
       .join('')
 
-    const placeTree = this.#renderPlaceTree(this.#places)
+    const placeTree = this.#renderPlaceTree(this.#getRootPlaces())
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -242,7 +241,7 @@ export class PagePlaces extends HTMLElement {
           <button type="submit" class="createBtn">Add Place</button>
         </form>
         ${placeTree
-          ? `<ul class="placesList" data-id="placesList">${this.#renderPlaceTree(this.#places).replace(/^<div/g, '<li').replace(/<\/div>$/g, '</li>')}</ul>`
+          ? `<ul class="placesList" data-id="placesList">${placeTree}</ul>`
           : '<div class="emptyState">No places yet. Create one above.</div>'}
       </div>
     `
