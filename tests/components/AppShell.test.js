@@ -124,6 +124,20 @@ describe('AppShell', () => {
     expect(collapseBtn.textContent).toBe('«')
   })
 
+  it('content spans full width when sidebar is collapsed', () => {
+    const content = shell.shadowRoot.querySelector('.content')
+    const footer = shell.shadowRoot.querySelector('footer')
+
+    shell.classList.add('sidebar-collapsed')
+
+    const contentCol = getComputedStyle(content).gridColumn
+    const footerCol = getComputedStyle(footer).gridColumn
+    expect(contentCol).not.toBe('auto')
+    expect(footerCol).not.toBe('auto')
+    expect(contentCol).toMatch(/1|span/)
+    expect(footerCol).toMatch(/1|span/)
+  })
+
   it('has all four layout regions in shadow DOM', () => {
     const header = shell.shadowRoot.querySelector('header.header')
     const sidebar = shell.shadowRoot.querySelector('.sidebar')

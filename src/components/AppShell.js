@@ -153,7 +153,9 @@ export class AppShell extends HTMLElement {
         }
         :host(.sidebar-collapsed) .sidebar {
           width: 0px;
-          padding: 0;
+          padding-left: 0;
+          padding-right: 0;
+          overflow: hidden;
         }
         .sidebarNav {
           display: flex;
@@ -182,6 +184,13 @@ export class AppShell extends HTMLElement {
           display: flex;
           flex-direction: column;
           min-width: 0;
+        }
+        :host(.sidebar-collapsed) .content {
+          grid-column: 1 / span 2;
+          grid-row: 2 / 3;
+        }
+        :host(.sidebar-collapsed) footer {
+          grid-column: 1 / span 2;
         }
         .pageContent {
           flex: 1;
