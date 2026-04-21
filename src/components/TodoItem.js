@@ -16,7 +16,7 @@ export class TodoItem extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['title', 'completed', 'id']
+    return ['title', 'completed', 'id', 'place-name']
   }
 
   attributeChangedCallback() {
@@ -33,6 +33,7 @@ export class TodoItem extends HTMLElement {
     const title = this.getAttribute('title') || ''
     const completed = this.getAttribute('completed') === 'true'
     const id = this.getAttribute('id') || ''
+    const placeName = this.getAttribute('place-name') || ''
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -52,14 +53,23 @@ export class TodoItem extends HTMLElement {
           cursor: pointer;
           accent-color: var(--accent-primary, #4a90d9);
         }
-        .todoText {
+        .todoContent {
           flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .todoText {
           font-size: 14px;
           color: var(--text-primary, #333);
         }
         .todoText.completed {
           text-decoration: line-through;
           color: var(--text-completed, #aaa);
+        }
+        .placeName {
+          font-size: 12px;
+          color: var(--text-muted, #888);
         }
         .deleteBtn {
           background: none;
@@ -77,7 +87,10 @@ export class TodoItem extends HTMLElement {
       </style>
       <label class="todoItem">
         <input type="checkbox" data-id="checkbox" ${completed ? 'checked' : ''} />
-        <span class="todoText ${completed ? 'completed' : ''}" data-id="todoText">${title}</span>
+        <div class="todoContent">
+          <span class="todoText ${completed ? 'completed' : ''}" data-id="todoText">${title}</span>
+          ${placeName ? `<span class="placeName" data-id="placeName">${placeName}</span>` : ''}
+        </div>
         <button class="deleteBtn" data-id="deleteBtn" title="Delete">&times;</button>
       </label>
     `

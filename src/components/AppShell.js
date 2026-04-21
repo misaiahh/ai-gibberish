@@ -17,31 +17,61 @@ export class AppShell extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-columns: 220px 1fr;
+          grid-template-rows: auto 1fr auto;
+          grid-template-areas:
+            "header header"
+            "sidebar content"
+            "footer footer";
+          grid-template-rows: 56px 1fr auto;
           min-height: 100vh;
           background: var(--bg-app, #f5f5f5);
         }
-        header {
+        :host(.sidebar-collapsed) {
+          grid-template-columns: 0px 1fr;
+        }
+        .header {
+          grid-area: header;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          height: 56px;
           padding: 0 24px;
           background: var(--bg-header, #4a90d9);
-          position: relative;
         }
-        .headerActions {
+        .headerLeft {
           display: flex;
           align-items: center;
           gap: 12px;
         }
-        .appTitle {
+        .collapseBtn {
+          width: 32px;
+          height: 32px;
+          border-radius: 4px;
+          border: none;
+          background: rgba(255,255,255,0.2);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s;
+          color: var(--text-header, #fff);
+          font-size: 18px;
+        }
+        .collapseBtn:hover {
+          background: rgba(255,255,255,0.35);
+        }
+        .headerTitle {
           font-size: 18px;
           font-weight: 700;
           color: var(--text-header, #fff);
           letter-spacing: -0.3px;
           cursor: pointer;
+        }
+        .headerActions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
         .themeToggle {
           width: 36px;
@@ -87,7 +117,7 @@ export class AppShell extends HTMLElement {
         .userDropdown {
           position: absolute;
           top: calc(100% + 8px);
-          right: 24px;
+          right: 0;
           background: var(--bg-modal-content, #fff);
           border-radius: 8px;
           box-shadow: 0 4px 20px var(--shadow-dropdown, rgba(0,0,0,0.15));
@@ -107,22 +137,64 @@ export class AppShell extends HTMLElement {
           border-radius: 0;
           padding: 10px 16px;
           font-size: 14px;
-          display: block;
         }
         .userDropdown nav-link::part(link):hover {
           background: var(--bg-footer, #f5f5f5);
         }
-        main {
+        .sidebar {
+          grid-area: sidebar;
+          background: var(--bg-sidebar, #2c3e50);
+          padding: 24px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          overflow: hidden;
+          transition: width 0.2s ease;
+        }
+        :host(.sidebar-collapsed) .sidebar {
+          width: 0px;
+          padding: 0;
+        }
+        .sidebarNav {
+          display: flex;
+          flex-direction: column;
+        }
+        .sidebarNav nav-link {
+          display: block;
+        }
+        .sidebarNav nav-link::part(link) {
+          color: var(--text-sidebar, #bdc3c7);
+          padding: 10px 20px;
+          font-size: 14px;
+          border-radius: 0;
+          white-space: nowrap;
+        }
+        .sidebarNav nav-link::part(link):hover {
+          background: var(--bg-sidebar-hover, rgba(255,255,255,0.1));
+          color: var(--text-header, #fff);
+        }
+        .sidebarNav nav-link::part(link).active {
+          background: var(--bg-nav-active, rgba(255,255,255,0.2));
+          color: var(--text-header, #fff);
+        }
+        .content {
+          grid-area: content;
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+        }
+        .pageContent {
           flex: 1;
           padding: 32px 24px;
           display: flex;
           justify-content: center;
         }
-        main ::slotted(*) {
+        .pageContent ::slotted(*) {
           max-width: 900px;
           width: 100%;
         }
         footer {
+          grid-area: footer;
           padding: 16px 24px;
           text-align: center;
           font-size: 12px;
@@ -137,8 +209,11 @@ export class AppShell extends HTMLElement {
           text-decoration: underline;
         }
       </style>
-      <header>
-        <span class="appTitle" data-id="appTitle">Todo App</span>
+      <header class="header">
+        <div class="headerLeft">
+          <button class="collapseBtn" data-id="collapseBtn" aria-label="Toggle sidebar">&laquo;</button>
+          <span class="headerTitle" data-id="appTitle">Todo App</span>
+        </div>
         <div class="headerActions">
           <button class="themeToggle" data-id="themeToggle" aria-label="Toggle theme">
             <svg class="sunIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -167,32 +242,27 @@ export class AppShell extends HTMLElement {
           <nav-link href="/settings">Settings</nav-link>
         </div>
       </header>
-      <main>
-        <slot name="page-content"></slot>
-      </main>
+      <nav class="sidebar">
+        <div class="sidebarNav">
+          <nav-link href="/">Home</nav-link>
+          <nav-link href="/places">Places</nav-link>
+        </div>
+      </nav>
+      <div class="content">
+        <div class="pageContent">
+          <slot name="page-content"></slot>
+        </div>
+      </div>
       <footer>
         <span>Todo App &copy; 2025 &middot; <a data-id="aboutLink" href="/about">About</a></span>
       </footer>
     `
 
     this.slotEl = this.shadowRoot.querySelector('slot[name="page-content"]')
-    this.userBtn = this.shadowRoot.querySelector('[data-id="userBtn"]')
-    this.userDropdown = this.shadowRoot.querySelector('[data-id="userDropdown"]')
     this.appTitle = this.shadowRoot.querySelector('[data-id="appTitle"]')
-    this.themeToggle = this.shadowRoot.querySelector('[data-id="themeToggle"]')
-    this.sunIcon = this.shadowRoot.querySelector('.sunIcon')
-    this.moonIcon = this.shadowRoot.querySelector('.moonIcon')
-    this.#updateThemeIcon(themeManager.getTheme())
-  }
-
-  #updateThemeIcon(theme) {
-    if (theme === 'dark') {
-      this.sunIcon.style.display = 'none'
-      this.moonIcon.style.display = 'block'
-    } else {
-      this.sunIcon.style.display = 'block'
-      this.moonIcon.style.display = 'none'
-    }
+    this.aboutLink = this.shadowRoot.querySelector('[data-id="aboutLink"]')
+    this.collapseBtn = this.shadowRoot.querySelector('[data-id="collapseBtn"]')
+    this.isSidebarCollapsed = false
   }
 
   #bindEvents() {
@@ -204,26 +274,11 @@ export class AppShell extends HTMLElement {
       this.#disableStorage()
     })
 
-    // Theme toggle
-    this.themeToggle.addEventListener('click', () => {
-      themeManager.toggle()
-      this.#updateThemeIcon(themeManager.getTheme())
-    })
-
-    // Subscribe to theme changes from other sources (e.g. settings page)
-    document.addEventListener('theme-change', () => {
-      this.#updateThemeIcon(themeManager.getTheme())
-    })
-
-    // Toggle user dropdown
-    this.userBtn.addEventListener('click', (e) => {
-      e.stopPropagation()
-      this.userDropdown.classList.toggle('hidden')
-    })
-
-    // Close dropdown on outside click
-    document.addEventListener('click', () => {
-      this.userDropdown.classList.add('hidden')
+    // Sidebar collapse toggle
+    this.collapseBtn.addEventListener('click', () => {
+      this.isSidebarCollapsed = !this.isSidebarCollapsed
+      this.classList.toggle('sidebar-collapsed', this.isSidebarCollapsed)
+      this.collapseBtn.textContent = this.isSidebarCollapsed ? '»' : '«'
     })
 
     // Navigate to home on title click
@@ -232,7 +287,7 @@ export class AppShell extends HTMLElement {
     })
 
     // Intercept footer about link for client-side routing
-    this.shadowRoot.querySelector('[data-id="aboutLink"]').addEventListener('click', (e) => {
+    this.aboutLink.addEventListener('click', (e) => {
       e.preventDefault()
       history.pushState({}, '', '/about')
       window.dispatchEvent(new CustomEvent('route-change', { detail: { path: '/about' } }))
@@ -276,6 +331,9 @@ export class AppShell extends HTMLElement {
     switch (path) {
       case '/':
         component = document.createElement('page-todo')
+        break
+      case '/places':
+        component = document.createElement('page-places')
         break
       case '/about':
         component = document.createElement('page-about')

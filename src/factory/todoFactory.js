@@ -3,17 +3,18 @@ import { storageService } from '../service/storageService.js'
 import { config } from '../config.js'
 
 /**
- * @typedef {{id: string, title: string, completed: boolean, createdAt: string, updatedAt: string}} Todo
+ * @typedef {{id: string, title: string, completed: boolean, placeId: string|null, createdAt: string, updatedAt: string}} Todo
  */
 
 /**
  * Creates a new todo store backed by the remote API with localStorage persistence for offline access.
  * @returns {{
- *   create: (title: string) => Promise<Todo>,
+ *   create: (title: string, placeId?: string|null) => Promise<Todo>,
  *   getAll: () => Promise<Todo[]>,
  *   get: () => Todo[],
  *   delete: (id: string) => Promise<void>,
  *   toggle: (id: string) => Promise<Todo>,
+ *   updatePlace: (id: string, placeId: string|null) => Promise<Todo>,
  *   clearCompleted: () => Promise<void>,
  *   getActiveCount: () => number,
  *   getCompletedCount: () => number,
@@ -90,7 +91,7 @@ export function todoFactory() {
       const localOnly = todos.filter((t) => !serverIds.has(t.id))
       for (const localTodo of localOnly) {
         try {
-          const serverTodo = await apiService.create(localTodo.title)
+          const serverTodo = await apiService.create(localTodo.title, localTodo.placeId)
           Object.assign(localTodo, serverTodo)
         } catch {
           // Keep local version if API fails during sync
@@ -134,13 +135,15 @@ export function todoFactory() {
     /**
      * Creates a new todo. Optimistic: applies immediately to memory + storage.
      * @param {string} title
+     * @param {string|null} [placeId]
      * @returns {Promise<Todo>}
      */
-    async create(title) {
+    async create(title, placeId = null) {
       const todo = {
         id: crypto.randomUUID(),
         title: title.trim(),
         completed: false,
+        placeId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
@@ -149,7 +152,7 @@ export function todoFactory() {
 
       if (config.serverStorageEnabled && online) {
         try {
-          const serverTodo = await apiService.create(title)
+          const serverTodo = await apiService.create(title, placeId)
           Object.assign(todo, serverTodo)
           saveToStorage()
         } catch {
@@ -224,6 +227,31 @@ export function todoFactory() {
       if (config.serverStorageEnabled && online) {
         try {
           const updated = await apiService.update(id, { completed: todo.completed })
+          Object.assign(todo, updated)
+          saveToStorage()
+        } catch {
+          online = false
+        }
+      }
+      return todo
+    },
+
+    /**
+     * Updates the placeId of a todo.
+     * @param {string} id
+     * @param {string|null} placeId
+     * @returns {Promise<Todo>}
+     */
+    async updatePlace(id, placeId) {
+      const todo = todos.find((t) => t.id === id)
+      if (!todo) return
+      todo.placeId = placeId
+      todo.updatedAt = new Date().toISOString()
+      saveToStorage()
+
+      if (config.serverStorageEnabled && online) {
+        try {
+          const updated = await apiService.update(id, { placeId })
           Object.assign(todo, updated)
           saveToStorage()
         } catch {
