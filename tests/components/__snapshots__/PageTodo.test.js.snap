@@ -10,6 +10,7 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
           padding: 32px;
           max-width: 900px;
           width: 100%;
+          text-align: center;
         }
         .todoApp h1 {
           font-size: 24px;
@@ -19,7 +20,7 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
           color: var(--text-primary, #333);
         }
     .filterContainer {
-          display: flex;
+          display: inline-flex;
           gap: 4px;
           margin: 12px auto 16px;
           border: 1px solid var(--border-input, #ddd);
@@ -65,12 +66,10 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
       <div class="todoApp">
         <h1>Todo App</h1>
         <todo-input places="[]"></todo-input>
-        <div style="text-align: center;">
-          <div class="filterContainer" data-id="filters">
-            <button data-filter="all" class="active">All</button>
-            <button data-filter="active" class="">Active</button>
-            <button data-filter="completed" class="">Completed</button>
-          </div>
+        <div class="filterContainer" data-id="filters">
+          <button data-filter="all" class="active">All</button>
+          <button data-filter="active" class="">Active</button>
+          <button data-filter="completed" class="">Completed</button>
         </div>
         <todo-list filter="all" todos="[]" places="[]"></todo-list>
         <div class="footer" data-id="footer">

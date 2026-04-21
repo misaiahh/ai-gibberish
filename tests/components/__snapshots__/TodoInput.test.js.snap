@@ -1,64 +1,7 @@
-/**
- * @typedef {Object} TodoInput
- * @property {HTMLInputElement} input - The text input element
- * @property {HTMLButtonElement} button - The add button
- */
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-export class TodoInput extends HTMLElement {
-  static get observedAttributes() {
-    return ['placeholder', 'places']
-  }
-
-  /** @type {string} */
-  #text = ''
-  /** @type {Array} */
-  #places = []
-  /** @type {string|null} */
-  #selectedPlaceId = null
-  /** @type {boolean} */
-  #dropdownOpen = false
-
-  get value() {
-    return this.#text
-  }
-
-  set value(val) {
-    this.#text = val
-    if (this.input) {
-      this.input.value = val
-    }
-  }
-
-  constructor() {
-    super()
-    this.attachShadow({ mode: 'open' })
-  }
-
-  connectedCallback() {
-    this.#render()
-  }
-
-  attributeChangedCallback() {
-    if (this.shadowRoot) {
-      this.#render()
-    }
-  }
-
-  #render() {
-    const placeholder = this.getAttribute('placeholder') || 'What needs to be done?'
-    const places = JSON.parse(this.getAttribute('places') || '[]')
-    this.#places = places
-
-    const optionsHTML = places.map(p =>
-      `<div class="dd-option" data-id="dd-option" data-value="${p.id}">${p.name}</div>`
-    ).join('')
-
-    const selectedPlace = this.#selectedPlaceId
-      ? places.find(p => p.id === this.#selectedPlaceId)
-      : null
-    const triggerText = selectedPlace ? selectedPlace.name : 'Select place'
-
-    this.shadowRoot.innerHTML = `
+exports[`TodoInput > matches shadow DOM snapshot 1`] = `
+"
       <style>
         .inputContainer {
           display: flex;
@@ -177,90 +120,19 @@ export class TodoInput extends HTMLElement {
       </style>
       <div class="inputContainer">
         <div class="inputRow">
-          <input type="text" placeholder="${placeholder}" data-id="input" />
+          <input type="text" placeholder="What needs to be done?" data-id="input">
           <button class="addBtn" data-id="button">Add</button>
         </div>
         <div class="placeRow">
           <div class="ddWrapper" data-id="ddWrapper">
-            <div class="ddTrigger" data-id="ddTrigger">${triggerText}</div>
+            <div class="ddTrigger" data-id="ddTrigger">Select place</div>
             <div class="ddList" data-id="ddList">
               <div class="dd-option" data-id="dd-option" data-value="">Select place</div>
-              ${optionsHTML}
+              
             </div>
           </div>
           <button class="placesBtn" data-id="placesBtn">Go to Places</button>
         </div>
       </div>
-    `
-
-    this.input = this.shadowRoot.querySelector('[data-id="input"]')
-    this.button = this.shadowRoot.querySelector('[data-id="button"]')
-    this.ddWrapper = this.shadowRoot.querySelector('[data-id="ddWrapper"]')
-    this.ddTrigger = this.shadowRoot.querySelector('[data-id="ddTrigger"]')
-    this.ddList = this.shadowRoot.querySelector('[data-id="ddList"]')
-    this.placesBtn = this.shadowRoot.querySelector('[data-id="placesBtn"]')
-
-    this.#bindEvents()
-  }
-
-  #bindEvents() {
-    this.input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && this.input.value.trim()) {
-        e.preventDefault()
-        this.#dispatchAdd()
-      }
-    })
-
-    this.button.addEventListener('click', () => {
-      if (this.input.value.trim()) {
-        this.#dispatchAdd()
-      }
-    })
-
-    this.ddTrigger.addEventListener('click', (e) => {
-      e.stopPropagation()
-      this.#dropdownOpen = !this.#dropdownOpen
-      this.ddList.classList.toggle('open', this.#dropdownOpen)
-    })
-
-    this.ddList.addEventListener('click', (e) => {
-      const option = e.target.closest('.dd-option')
-      if (!option) return
-      e.stopPropagation()
-      this.#selectedPlaceId = option.dataset.value || null
-      this.#render()
-    })
-
-    this.placesBtn.addEventListener('click', () => {
-      history.pushState({}, '', '/places')
-      window.dispatchEvent(new CustomEvent('route-change', {
-        detail: { path: '/places' },
-      }))
-    })
-
-    document.addEventListener('click', (e) => {
-      if (this.#dropdownOpen && !this.ddWrapper.contains(e.target)) {
-        this.#dropdownOpen = false
-        this.ddList.classList.remove('open')
-      }
-    })
-  }
-
-  #dispatchAdd() {
-    const title = this.input.value.trim()
-    if (!title) return
-
-    this.#text = title
-    this.input.value = ''
-    const placeId = this.#selectedPlaceId
-    this.dispatchEvent(
-      new CustomEvent('add', {
-        detail: { title, placeId },
-        bubbles: true,
-        composed: true,
-      })
-    )
-  }
-}
-
-customElements.define('todo-input', TodoInput)
+    "
+`;

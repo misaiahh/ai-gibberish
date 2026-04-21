@@ -66,6 +66,10 @@ export class NavLink extends HTMLElement {
       link.classList.toggle('active', this.#href === location.pathname)
     }
   }
+
+  syncActive() {
+    this.#syncActive()
+  }
 }
 
 customElements.define('nav-link', NavLink)

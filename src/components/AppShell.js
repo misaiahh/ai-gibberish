@@ -395,6 +395,10 @@ export class AppShell extends HTMLElement {
       this.appendChild(component)
       this.#currentPage = component
     }
+
+    this.shadowRoot.querySelectorAll('.sidebarNav nav-link').forEach(link => {
+      link.syncActive()
+    })
   }
 
   navigate(path) {
