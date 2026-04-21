@@ -72,6 +72,7 @@ export class AppShell extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 12px;
+          position: relative;
         }
         .themeToggle {
           width: 36px;
@@ -104,7 +105,6 @@ export class AppShell extends HTMLElement {
           align-items: center;
           justify-content: center;
           transition: background 0.2s;
-          position: relative;
         }
         .userBtn:hover {
           background: rgba(255,255,255,0.35);
@@ -209,39 +209,39 @@ export class AppShell extends HTMLElement {
           text-decoration: underline;
         }
       </style>
-      <header class="header">
-        <div class="headerLeft">
-          <button class="collapseBtn" data-id="collapseBtn" aria-label="Toggle sidebar">&laquo;</button>
-          <span class="headerTitle" data-id="appTitle">Todo App</span>
-        </div>
-        <div class="headerActions">
-          <button class="themeToggle" data-id="themeToggle" aria-label="Toggle theme">
-            <svg class="sunIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
-              <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <svg class="moonIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button class="userBtn" data-id="userBtn" aria-label="User menu">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M12 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="userDropdown hidden" data-id="userDropdown">
-          <nav-link href="/settings">Settings</nav-link>
-        </div>
-      </header>
+    <header class="header">
+         <div class="headerLeft">
+           <button class="collapseBtn" data-id="collapseBtn" aria-label="Toggle sidebar">&laquo;</button>
+           <span class="headerTitle" data-id="appTitle">Todo App</span>
+         </div>
+         <div class="headerActions">
+           <button class="themeToggle" data-id="themeToggle" aria-label="Toggle theme">
+             <svg class="sunIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+               <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+               <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+             </svg>
+             <svg class="moonIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none">
+               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+             </svg>
+           </button>
+           <button class="userBtn" data-id="userBtn" aria-label="User menu">
+             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+               <circle cx="12" cy="8" r="4"/>
+               <path d="M12 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
+             </svg>
+           </button>
+           <div class="userDropdown hidden" data-id="userDropdown">
+             <nav-link href="/settings">Settings</nav-link>
+           </div>
+         </div>
+       </header>
       <nav class="sidebar">
         <div class="sidebarNav">
           <nav-link href="/">Home</nav-link>
@@ -262,7 +262,23 @@ export class AppShell extends HTMLElement {
     this.appTitle = this.shadowRoot.querySelector('[data-id="appTitle"]')
     this.aboutLink = this.shadowRoot.querySelector('[data-id="aboutLink"]')
     this.collapseBtn = this.shadowRoot.querySelector('[data-id="collapseBtn"]')
+    this.themeToggle = this.shadowRoot.querySelector('[data-id="themeToggle"]')
+    this.userBtn = this.shadowRoot.querySelector('[data-id="userBtn"]')
+    this.userDropdown = this.shadowRoot.querySelector('[data-id="userDropdown"]')
+    this.sunIcon = this.shadowRoot.querySelector('.sunIcon')
+    this.moonIcon = this.shadowRoot.querySelector('.moonIcon')
     this.isSidebarCollapsed = false
+    this.#updateThemeIcon(themeManager.getTheme())
+  }
+
+  #updateThemeIcon(theme) {
+    if (theme === 'dark') {
+      this.sunIcon.style.display = 'none'
+      this.moonIcon.style.display = 'block'
+    } else {
+      this.sunIcon.style.display = 'block'
+      this.moonIcon.style.display = 'none'
+    }
   }
 
   #bindEvents() {
@@ -272,6 +288,28 @@ export class AppShell extends HTMLElement {
 
     document.addEventListener('storage:disable', () => {
       this.#disableStorage()
+    })
+
+    // Theme toggle
+    this.themeToggle.addEventListener('click', () => {
+      themeManager.toggle()
+      this.#updateThemeIcon(themeManager.getTheme())
+    })
+
+    // Subscribe to theme changes from other sources (e.g. settings page)
+    document.addEventListener('theme-change', () => {
+      this.#updateThemeIcon(themeManager.getTheme())
+    })
+
+    // Toggle user dropdown
+    this.userBtn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      this.userDropdown.classList.toggle('hidden')
+    })
+
+    // Close dropdown on outside click
+    document.addEventListener('click', () => {
+      this.userDropdown.classList.add('hidden')
     })
 
     // Sidebar collapse toggle
