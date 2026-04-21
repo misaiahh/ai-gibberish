@@ -131,10 +131,10 @@ exports[`AppShell > snapshot matches shadow DOM structure 1`] = `
         .sidebar {
           grid-area: sidebar;
           background: var(--bg-sidebar, #2c3e50);
-          padding: 24px 0;
+          padding: 24px 12px;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 6px;
           overflow: hidden;
           transition: width 0.2s ease;
         }
@@ -148,16 +148,19 @@ exports[`AppShell > snapshot matches shadow DOM structure 1`] = `
           display: flex;
           flex-direction: column;
         }
-        .sidebarNav nav-link {
-          display: block;
-        }
-        .sidebarNav nav-link::part(link) {
-          color: var(--text-sidebar, #bdc3c7);
-          padding: 10px 20px;
-          font-size: 14px;
-          border-radius: 0;
-          white-space: nowrap;
-        }
+       .sidebarNav nav-link {
+           display: block;
+           width: 100%;
+         }
+         .sidebarNav nav-link::part(link) {
+           color: var(--text-sidebar, #bdc3c7);
+           padding: 10px 16px;
+           font-size: 14px;
+           border-radius: 6px;
+           white-space: nowrap;
+           width: 100%;
+           box-sizing: border-box;
+         }
         .sidebarNav nav-link::part(link):hover {
           background: var(--bg-sidebar-hover, rgba(255,255,255,0.1));
           color: var(--text-header, #fff);
