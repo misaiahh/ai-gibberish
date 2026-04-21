@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Dropdown > matches shadow DOM snapshot 1`] = `
+"
+      <style>
+        :host {
+          display: inline-block;
+          position: relative;
+        }
+        .trigger {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 32px 8px 12px;
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 6px;
+          font-size: 13px;
+          outline: none;
+          background: var(--bg-app, #f5f5f5);
+          color: var(--text-secondary, #555);
+          cursor: pointer;
+          text-align: left;
+          width: 100%;
+          transition: border-color 0.2s;
+          box-sizing: border-box;
+        }
+        .trigger:focus {
+          border-color: var(--accent-primary, #4a90d9);
+        }
+        .trigger::after {
+          content: '';
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          border: 5px solid transparent;
+          border-top: 5px solid var(--text-secondary, #555);
+          pointer-events: none;
+        }
+        .list {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          background: var(--bg-card, #fff);
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 6px;
+          max-height: 200px;
+          overflow-y: auto;
+          z-index: 100;
+          display: none;
+        }
+        .list.open {
+          display: block;
+        }
+        .option {
+          padding: 8px 12px;
+          font-size: 13px;
+          cursor: pointer;
+          color: var(--text-secondary, #555);
+        }
+        .option:hover {
+          background: var(--bg-app, #f5f5f5);
+        }
+      </style>
+      <div class="trigger" data-id="trigger" tabindex="0" part="trigger">
+        <slot name="label">Choose</slot>
+      </div>
+      <div class="list" data-id="list">
+        <slot name="options"></slot>
+      </div>
+    "
+`;

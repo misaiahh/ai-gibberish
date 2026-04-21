@@ -112,73 +112,131 @@ describe('TodoInput', () => {
     expect(input.value).toBe('Hello')
   })
 
+  it('renders a place dropdown trigger', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"}]')
+    container.appendChild(el)
+
+    const trigger = el.shadowRoot.querySelector('[data-id="ddTrigger"]')
+    expect(trigger).toBeTruthy()
+  })
+
+  it('renders a place dropdown list', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"}]')
+    container.appendChild(el)
+
+    const list = el.shadowRoot.querySelector('[data-id="ddList"]')
+    expect(list).toBeTruthy()
+  })
+
+  it('renders options in the dropdown', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"},{"id":"2","name":"Work"}]')
+    container.appendChild(el)
+
+    const options = el.shadowRoot.querySelectorAll('[data-id="dd-option"]')
+    expect(options).toHaveLength(3)
+    expect(options[0].textContent).toBe('Select place')
+    expect(options[0].getAttribute('data-value')).toBe('')
+    expect(options[1].textContent).toBe('Home')
+    expect(options[1].getAttribute('data-value')).toBe('1')
+    expect(options[2].textContent).toBe('Work')
+    expect(options[2].getAttribute('data-value')).toBe('2')
+  })
+
+  it('renders a go to places button', () => {
+    const el = document.createElement('todo-input')
+    container.appendChild(el)
+
+    const placesBtn = el.shadowRoot.querySelector('[data-id="placesBtn"]')
+    expect(placesBtn).toBeTruthy()
+    expect(placesBtn.textContent).toBe('Go to Places')
+  })
+
+  it('dispatches route-change when go to places is clicked', () => {
+    const el = document.createElement('todo-input')
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    window.addEventListener('route-change', handler)
+
+    el.placesBtn.click()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.path).toBe('/places')
+
+    window.removeEventListener('route-change', handler)
+  })
+
+  it('opens dropdown when trigger is clicked', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"}]')
+    container.appendChild(el)
+
+    const trigger = el.shadowRoot.querySelector('[data-id="ddTrigger"]')
+    const list = el.shadowRoot.querySelector('[data-id="ddList"]')
+
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(list.classList.contains('open')).toBe(true)
+  })
+
+  it('closes dropdown when clicking outside', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"}]')
+    container.appendChild(el)
+
+    const trigger = el.shadowRoot.querySelector('[data-id="ddTrigger"]')
+    const list = el.shadowRoot.querySelector('[data-id="ddList"]')
+
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(list.classList.contains('open')).toBe(true)
+
+    const outside = document.createElement('div')
+    document.body.appendChild(outside)
+    outside.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    document.body.removeChild(outside)
+
+    expect(list.classList.contains('open')).toBe(false)
+  })
+
+  it('selects a place when option is clicked', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"}]')
+    container.appendChild(el)
+
+    const option = el.shadowRoot.querySelector('[data-value="1"]')
+
+    option.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    const trigger = el.shadowRoot.querySelector('[data-id="ddTrigger"]')
+    expect(trigger.textContent).toBe('Home')
+  })
+
+  it('dispatches add with selected place id', () => {
+    const el = document.createElement('todo-input')
+    el.setAttribute('places', '[{"id":"1","name":"Home"}]')
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    el.addEventListener('add', handler)
+
+    const trigger = el.shadowRoot.querySelector('[data-id="ddTrigger"]')
+    const option = el.shadowRoot.querySelector('[data-value="1"]')
+    option.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    const input = el.shadowRoot.querySelector('[data-id="input"]')
+    input.value = 'Buy milk'
+    el.button.click()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.placeId).toBe('1')
+  })
+
   it('matches shadow DOM snapshot', () => {
     const el = document.createElement('todo-input')
     container.appendChild(el)
 
-    expect(el.shadowRoot.innerHTML).toMatchInlineSnapshot(`
-      "
-            <style>
-              .inputContainer {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-              }
-              .inputRow {
-                display: flex;
-                gap: 8px;
-              }
-              .inputRow input {
-                flex: 1;
-                padding: 10px 12px;
-                border: 1px solid var(--border-input, #ddd);
-                border-radius: 6px;
-                font-size: 14px;
-                outline: none;
-                transition: border-color 0.2s;
-              }
-              .inputRow input:focus {
-                border-color: var(--accent-primary, #4a90d9);
-              }
-              .addBtn {
-                padding: 10px 18px;
-                background: var(--bg-btn-primary, #4a90d9);
-                color: var(--text-header, #fff);
-                border: none;
-                border-radius: 6px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: background 0.2s;
-              }
-              .addBtn:hover {
-                background: var(--bg-btn-primary-hover, #357abd);
-              }
-              .placeSelect {
-                padding: 8px 12px;
-                border: 1px solid var(--border-input, #ddd);
-                border-radius: 6px;
-                font-size: 13px;
-                outline: none;
-                background: var(--bg-app, #f5f5f5);
-                color: var(--text-secondary, #555);
-                cursor: pointer;
-              }
-              .placeSelect:focus {
-                border-color: var(--accent-primary, #4a90d9);
-              }
-            </style>
-            <div class="inputContainer">
-              <div class="inputRow">
-                <input type="text" placeholder="What needs to be done?" data-id="input">
-                <button class="addBtn" data-id="button">Add</button>
-              </div>
-              <select class="placeSelect" data-id="placeSelect">
-                <option value="">No place</option>
-                
-              </select>
-            </div>
-          "
-    `)
+    expect(el.shadowRoot.innerHTML).toMatchSnapshot()
   })
 })

@@ -1,5 +1,6 @@
 import { todoFactory } from '../../factory/todoFactory.js'
 import { placesService } from '../../service/apiService.js'
+import '../../components/TodoInput.js'
 
 export class PageTodo extends HTMLElement {
   #filter = 'all'
@@ -93,6 +94,7 @@ export class PageTodo extends HTMLElement {
           padding: 32px;
           max-width: 900px;
           width: 100%;
+          text-align: center;
         }
         .todoApp h1 {
           font-size: 24px;
@@ -102,7 +104,7 @@ export class PageTodo extends HTMLElement {
           color: var(--text-primary, #333);
         }
     .filterContainer {
-          display: flex;
+          display: inline-flex;
           gap: 4px;
           margin: 12px auto 16px;
           border: 1px solid var(--border-input, #ddd);
@@ -148,12 +150,10 @@ export class PageTodo extends HTMLElement {
       <div class="todoApp">
         <h1>Todo App</h1>
         <todo-input places='${JSON.stringify(this.#places)}'></todo-input>
-        <div style="text-align: center;">
-          <div class="filterContainer" data-id="filters">
-            <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
-            <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
-            <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
-          </div>
+        <div class="filterContainer" data-id="filters">
+          <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
+          <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
+          <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
         </div>
         <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}' places='${JSON.stringify(this.#places)}'></todo-list>
         <div class="footer" data-id="footer">
