@@ -34,7 +34,7 @@ describe('AppShell + router fetch count on initial load', () => {
     vi.restoreAllMocks()
   })
 
-  it('should only call GET /api/todos once during initial page load', async () => {
+  it('should call GET /api/todos and /api/places once during initial page load', async () => {
     // Simulate the full init sequence from main.js
 
     // Step 1: <app-shell> is in index.html
@@ -61,11 +61,11 @@ describe('AppShell + router fetch count on initial load', () => {
     console.log('fetch call count:', callCount)
     console.log('fetch URLs:', urls)
 
-    expect(callCount).toBe(1)
-    expect(urls).toEqual(['/api/todos'])
+    expect(callCount).toBe(2)
+    expect(urls).toEqual(['/api/todos', '/api/places'])
   })
 
-  it('should only call GET /api/todos once per navigation to home', async () => {
+  it('should call GET /api/todos and /api/places once per navigation to home', async () => {
     const shell = document.createElement('app-shell')
     container.appendChild(shell)
 
@@ -80,7 +80,7 @@ describe('AppShell + router fetch count on initial load', () => {
     router.start()
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    expect(window.fetch).toHaveBeenCalledTimes(1)
+    expect(window.fetch).toHaveBeenCalledTimes(2)
 
     // Navigate to about
     router.navigate('/about')
@@ -95,7 +95,7 @@ describe('AppShell + router fetch count on initial load', () => {
     console.log('fetch call count after / -> /about -> /:', callCount)
     console.log('fetch URLs:', urls)
 
-    // Should be exactly 2: one on initial load, one on returning to home
-    expect(callCount).toBe(2)
+    // Should be exactly 4: 2 on initial load, 2 on returning to home
+    expect(callCount).toBe(4)
   })
 })

@@ -78,29 +78,29 @@ describe('PageTodo', () => {
     expect(window.fetch).not.toHaveBeenCalled()
   })
 
-  it('calls API exactly once when element is connected to DOM', async () => {
+  it('calls API exactly twice when element is connected to DOM', async () => {
     const page = document.createElement('page-todo')
     expect(window.fetch).not.toHaveBeenCalled()
 
     container.appendChild(page)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(window.fetch).toHaveBeenCalledTimes(1)
+    expect(window.fetch).toHaveBeenCalledTimes(2)
   })
 
-  it('calls API exactly once when element is connected multiple times', async () => {
+  it('calls API exactly twice when element is connected multiple times', async () => {
     const page = document.createElement('page-todo')
     container.appendChild(page)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(window.fetch).toHaveBeenCalledTimes(1)
+    expect(window.fetch).toHaveBeenCalledTimes(2)
 
     // Remove and re-append — connectedCallback fires again
     container.removeChild(page)
     container.appendChild(page)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    // Should still be 1, not 2
-    expect(window.fetch).toHaveBeenCalledTimes(1)
+    // Should still be 2, not 4
+    expect(window.fetch).toHaveBeenCalledTimes(2)
   })
 })

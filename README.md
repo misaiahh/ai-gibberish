@@ -24,8 +24,10 @@ export const config = {
 
 ## Components
 
-- **`app-shell`** — SPA shell with persistent navigation bar
-  and dynamic page content area.
+- **`app-shell`** — SPA shell with a left sidebar navigation
+  (Home, Places) and dynamic page content area.
+- **`page-todo`** — Home page. Renders the todo list with
+  input (including place selector), filters, and footer.
 - **`page-todo`** — Home page. Renders the todo list with
   input, filters, and footer.
 - **`page-about`** — About page with project info.
@@ -38,6 +40,17 @@ export const config = {
   `delete` events.
 - **`todo-list`** — Renders a filtered list of
   `todo-item` components.
+- **`page-places`** — Places management page. Allows
+  creating places and sub-places, and deleting places.
+  Displays places in a hierarchical tree view.
+
+### Sidebar Collapse
+
+The sidebar is collapsable. Click the `«` / `»` toggle
+button in the header to collapse or expand the sidebar.
+When collapsed, the content area expands to fill the full
+width. The collapse state is managed via a
+`sidebar-collapsed` class on the `app-shell` host element.
 
 ## Custom Events
 
@@ -238,3 +251,60 @@ eliminate the orphaned dependency on `todoUtils.js`, which
 contains unused functions (`generateId`, `addTodo`,
 `toggleTodo`, `deleteTodo`, `getCompletedCount`) that were
 left over from an earlier architecture.
+
+### Place Attachment for Todos
+
+Todos can now be attached to places. A place represents a
+location or category (e.g., "Home", "Work", "Groceries").
+Each todo has an optional `placeId` field that links it to
+a place.
+
+**Changes:**
+
+- `apiService` exports a new `placesService` with `getAll()`
+  that fetches from `/api/places`
+- `apiService.create()` and `apiService.update()` now accept
+  an optional `placeId` parameter that is passed to the API
+- `todoFactory` stores include `placeId` (string or null)
+  and the `create()` method accepts an optional `placeId`
+  argument. A new `updatePlace()` method allows reassigning
+  a todo to a different place
+- `todoFactory.syncWithAPI()` preserves `placeId` when
+  syncing offline-created todos to the server
+- `TodoInput` now renders a place selector dropdown below
+  the text input, populated from the `places` attribute
+  (JSON array). Users can select a place before adding a
+  todo
+- `TodoInput` dispatches `add` events with `{ title, placeId }`
+  instead of just `{ title }`
+- `TodoItem` displays the place name below the todo title
+  when a place is associated
+- `TodoList` accepts a `places` attribute and passes place
+  names to `todo-item` components via the `place-name`
+  attribute
+- `PageTodo` loads places on init via `placesService.getAll()`
+  and passes them to both `todo-input` and `todo-list`
+- The Todo model typedef now includes `placeId: string | null`
+
+### Left Sidebar Navigation
+
+The app layout was changed from a top-header navigation to a
+left sidebar. The sidebar contains "Todo App" branding and
+navigation links for Home and Places.
+
+**Changes:**
+
+- `AppShell` layout changed from `flex-direction: column` to
+  `flex-direction: row` with a fixed-width sidebar on the left
+- Sidebar includes a nav-link for Home (`/`) and Places (`/places`)
+- Active link highlighting via the NavLink component's active class
+- Top header (theme toggle, user dropdown) removed in favor of
+  sidebar navigation
+- Footer "About" link retained for access to the About page
+- `PagePlaces` component created for managing places:
+  - Form with name input and optional parent place dropdown
+  - Hierarchical tree display of places with indentation for nesting
+  - Sub-place count shown next to parent places
+  - Delete button on each place (deletes place and all children)
+- `/places` route registered in `main.js` and `AppShell`
+- `placesService` extended with `create()` and `remove()` methods

@@ -64,7 +64,7 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
       </style>
       <div class="todoApp">
         <h1>Todo App</h1>
-        <todo-input></todo-input>
+        <todo-input places="[]"></todo-input>
         <div style="text-align: center;">
           <div class="filterContainer" data-id="filters">
             <button data-filter="all" class="active">All</button>
@@ -72,7 +72,7 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
             <button data-filter="completed" class="">Completed</button>
           </div>
         </div>
-        <todo-list filter="all" todos="[]"></todo-list>
+        <todo-list filter="all" todos="[]" places="[]"></todo-list>
         <div class="footer" data-id="footer">
           <span class="item-count" data-id="itemCount">0 items left</span>
           <span class="status-msg" data-id="statusMsg" style="display:none;"></span>

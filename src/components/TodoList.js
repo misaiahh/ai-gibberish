@@ -21,6 +21,8 @@ function filterTodos(filter, todos) {
 }
 
 export class TodoList extends HTMLElement {
+  #places = []
+
   constructor() {
     super()
     this.#attachShadow()
@@ -31,7 +33,7 @@ export class TodoList extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['filter']
+    return ['filter', 'places']
   }
 
   attributeChangedCallback() {
@@ -44,9 +46,17 @@ export class TodoList extends HTMLElement {
     this.attachShadow({ mode: 'open' })
   }
 
+  #getPlaceName(placeId) {
+    if (!placeId) return ''
+    const place = this.#places.find((p) => p.id === placeId)
+    return place ? place.name : ''
+  }
+
   #render() {
     const filter = this.getAttribute('filter') || 'all'
     const todos = JSON.parse(this.getAttribute('todos') || '[]')
+    const places = JSON.parse(this.getAttribute('places') || '[]')
+    this.#places = places
 
     const filtered = filterTodos(filter, todos)
 
@@ -66,6 +76,7 @@ export class TodoList extends HTMLElement {
       item.setAttribute('id', String(todo.id))
       item.setAttribute('title', todo.title)
       item.setAttribute('completed', String(todo.completed))
+      item.setAttribute('place-name', this.#getPlaceName(todo.placeId))
 
       this.list.appendChild(item)
     }
@@ -77,6 +88,15 @@ export class TodoList extends HTMLElement {
    */
   update(todos) {
     this.setAttribute('todos', JSON.stringify(todos))
+    this.#render()
+  }
+
+  /**
+   * Updates places and re-renders.
+   * @param {Array<{id: string, name: string}>} places
+   */
+  updatePlaces(places) {
+    this.#places = places
     this.#render()
   }
 }

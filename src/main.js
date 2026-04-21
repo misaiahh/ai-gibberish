@@ -10,6 +10,7 @@ import './pages/settings/PageSettings.js'
 import './components/TodoInput.js'
 import './components/TodoItem.js'
 import './components/TodoList.js'
+import './pages/places/PagePlaces.js'
 
 async function initPreferences() {
   try {
@@ -33,6 +34,7 @@ function init() {
   initPreferences().then(() => {
     // Register known routes so the router doesn't redirect them
     router.get('/', () => shell.navigate('/'))
+    router.get('/places', () => shell.navigate('/places'))
     router.get('/about', () => shell.navigate('/about'))
     router.get('/settings', () => shell.navigate('/settings'))
 

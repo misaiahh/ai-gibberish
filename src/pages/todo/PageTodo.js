@@ -1,8 +1,10 @@
 import { todoFactory } from '../../factory/todoFactory.js'
+import { placesService } from '../../service/apiService.js'
 
 export class PageTodo extends HTMLElement {
   #filter = 'all'
   #store = todoFactory()
+  #places = []
   #initialized = false
 
   constructor() {
@@ -20,6 +22,11 @@ export class PageTodo extends HTMLElement {
 
   async #init() {
     await this.#store.getAll()
+    try {
+      this.#places = await placesService.getAll()
+    } catch {
+      this.#places = []
+    }
     this.#render()
   }
 
@@ -40,7 +47,7 @@ export class PageTodo extends HTMLElement {
   #bindEvents() {
     this.addEventListener('add', async (e) => {
       e.stopPropagation()
-      await this.#store.create(e.detail.title)
+      await this.#store.create(e.detail.title, e.detail.placeId)
       await this.#updateList()
     })
 
@@ -140,7 +147,7 @@ export class PageTodo extends HTMLElement {
       </style>
       <div class="todoApp">
         <h1>Todo App</h1>
-        <todo-input></todo-input>
+        <todo-input places='${JSON.stringify(this.#places)}'></todo-input>
         <div style="text-align: center;">
           <div class="filterContainer" data-id="filters">
             <button data-filter="all" class="${this.#filter === 'all' ? 'active' : ''}">All</button>
@@ -148,7 +155,7 @@ export class PageTodo extends HTMLElement {
             <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
           </div>
         </div>
-        <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}'></todo-list>
+        <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}' places='${JSON.stringify(this.#places)}'></todo-list>
         <div class="footer" data-id="footer">
           <span class="item-count" data-id="itemCount"></span>
           <span class="status-msg" data-id="statusMsg" style="display:none;"></span>
@@ -165,6 +172,7 @@ export class PageTodo extends HTMLElement {
     const list = this.shadowRoot.querySelector('todo-list')
     if (list) {
       list.update(todos)
+      list.updatePlaces(this.#places)
     }
     this.#populateFooter()
   }

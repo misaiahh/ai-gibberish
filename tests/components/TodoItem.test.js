@@ -149,14 +149,23 @@ describe('TodoItem', () => {
                 cursor: pointer;
                 accent-color: var(--accent-primary, #4a90d9);
               }
-              .todoText {
+              .todoContent {
                 flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+              }
+              .todoText {
                 font-size: 14px;
                 color: var(--text-primary, #333);
               }
               .todoText.completed {
                 text-decoration: line-through;
                 color: var(--text-completed, #aaa);
+              }
+              .placeName {
+                font-size: 12px;
+                color: var(--text-muted, #888);
               }
               .deleteBtn {
                 background: none;
@@ -174,7 +183,10 @@ describe('TodoItem', () => {
             </style>
             <label class="todoItem">
               <input type="checkbox" data-id="checkbox">
-              <span class="todoText " data-id="todoText">Buy milk</span>
+              <div class="todoContent">
+                <span class="todoText " data-id="todoText">Buy milk</span>
+                
+              </div>
               <button class="deleteBtn" data-id="deleteBtn" title="Delete">×</button>
             </label>
           "

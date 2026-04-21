@@ -121,9 +121,14 @@ describe('TodoInput', () => {
             <style>
               .inputContainer {
                 display: flex;
+                flex-direction: column;
                 gap: 8px;
               }
-              .inputContainer input {
+              .inputRow {
+                display: flex;
+                gap: 8px;
+              }
+              .inputRow input {
                 flex: 1;
                 padding: 10px 12px;
                 border: 1px solid var(--border-input, #ddd);
@@ -132,7 +137,7 @@ describe('TodoInput', () => {
                 outline: none;
                 transition: border-color 0.2s;
               }
-              .inputContainer input:focus {
+              .inputRow input:focus {
                 border-color: var(--accent-primary, #4a90d9);
               }
               .addBtn {
@@ -149,10 +154,29 @@ describe('TodoInput', () => {
               .addBtn:hover {
                 background: var(--bg-btn-primary-hover, #357abd);
               }
+              .placeSelect {
+                padding: 8px 12px;
+                border: 1px solid var(--border-input, #ddd);
+                border-radius: 6px;
+                font-size: 13px;
+                outline: none;
+                background: var(--bg-app, #f5f5f5);
+                color: var(--text-secondary, #555);
+                cursor: pointer;
+              }
+              .placeSelect:focus {
+                border-color: var(--accent-primary, #4a90d9);
+              }
             </style>
             <div class="inputContainer">
-              <input type="text" placeholder="What needs to be done?" data-id="input">
-              <button class="addBtn" data-id="button">Add</button>
+              <div class="inputRow">
+                <input type="text" placeholder="What needs to be done?" data-id="input">
+                <button class="addBtn" data-id="button">Add</button>
+              </div>
+              <select class="placeSelect" data-id="placeSelect">
+                <option value="">No place</option>
+                
+              </select>
             </div>
           "
     `)
