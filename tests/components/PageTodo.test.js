@@ -103,4 +103,42 @@ describe('PageTodo', () => {
     // Should still be 2, not 4
     expect(window.fetch).toHaveBeenCalledTimes(2)
   })
+
+  it('renders an action bar below the filter bar', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    const actionBar = page.shadowRoot.querySelector('[data-id="actionBar"]')
+    expect(actionBar).toBeTruthy()
+  })
+
+  it('action bar has mark complete button', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    const markBtn = page.shadowRoot.querySelector('[data-id="actionMarkBtn"]')
+    expect(markBtn).toBeTruthy()
+    expect(markBtn.textContent).toBe('Mark Complete')
+  })
+
+  it('action bar has add to place dropdown', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    const placeDropdown = page.shadowRoot.querySelector('[data-id="actionPlaceDropdown"]')
+    expect(placeDropdown).toBeTruthy()
+  })
+
+  it('action bar has clear selection button', async () => {
+    const page = document.createElement('page-todo')
+    container.appendChild(page)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    const clearBtn = page.shadowRoot.querySelector('[data-id="actionCloseBtn"]')
+    expect(clearBtn).toBeTruthy()
+    expect(clearBtn.textContent).toBe('Clear Selection')
+  })
 })

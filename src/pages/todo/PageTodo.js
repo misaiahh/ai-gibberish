@@ -7,6 +7,8 @@ export class PageTodo extends HTMLElement {
   #store = todoFactory()
   #places = []
   #initialized = false
+  #selectedIds = []
+  #showActionBar = false
 
   constructor() {
     super()
@@ -48,7 +50,7 @@ export class PageTodo extends HTMLElement {
   #bindEvents() {
     this.addEventListener('add', async (e) => {
       e.stopPropagation()
-      await this.#store.create(e.detail.title, e.detail.placeId)
+      await this.#store.create(e.detail.title, e.detail.description, e.detail.placeIds)
       await this.#updateList()
     })
 
@@ -62,6 +64,19 @@ export class PageTodo extends HTMLElement {
       e.stopPropagation()
       await this.#store.delete(e.detail.id)
       await this.#updateList()
+    })
+
+    this.addEventListener('place-change', async (e) => {
+      e.stopPropagation()
+      await this.#store.setPlaceIds(e.detail.id, e.detail.placeIds)
+      await this.#updateList()
+    })
+
+    this.addEventListener('selection-change', (e) => {
+      e.stopPropagation()
+      this.#selectedIds = e.detail.selectedIds
+      this.#showActionBar = this.#selectedIds.length > 0
+      this.#updateActionBar()
     })
 
     this.shadowRoot.addEventListener('click', async (e) => {
@@ -79,7 +94,89 @@ export class PageTodo extends HTMLElement {
         await this.#store.clearCompleted()
         await this.#updateList()
       }
+
+      const actionMarkBtn = realTarget.closest('.action-mark-complete')
+      if (actionMarkBtn) {
+        for (const id of this.#selectedIds) {
+          const todo = this.#store.get().find((t) => t.id === id)
+          if (todo && !todo.completed) {
+            await this.#store.toggle(id)
+          }
+        }
+        await this.#clearSelection()
+      }
+
+      const actionUnmarkBtn = realTarget.closest('.action-unmark-complete')
+      if (actionUnmarkBtn) {
+        for (const id of this.#selectedIds) {
+          const todo = this.#store.get().find((t) => t.id === id)
+          if (todo && todo.completed) {
+            await this.#store.toggle(id)
+          }
+        }
+        await this.#clearSelection()
+      }
+
+      const actionPlaceDropdown = realTarget.closest('.actionPlaceDropdown')
+      if (actionPlaceDropdown) {
+        const isOpen = actionPlaceDropdown.classList.contains('open')
+        actionPlaceDropdown.classList.toggle('open', !isOpen)
+      }
+
+      const actionPlaceOption = realTarget.closest('.actionPlaceOption')
+      if (actionPlaceOption) {
+        e.stopPropagation()
+        const placeId = actionPlaceOption.dataset.placeId
+        const wasSelected = actionPlaceOption.classList.contains('selected')
+        const allPlaceIds = this.#places.map((p) => p.id)
+        for (const id of this.#selectedIds) {
+          const todo = this.#store.get().find((t) => t.id === id)
+          if (!todo) continue
+          const currentIds = [...(todo.placeIds || [])]
+          if (wasSelected) {
+            const newIds = currentIds.filter((pid) => pid !== placeId)
+            await this.#store.setPlaceIds(id, newIds)
+          } else {
+            const newIds = [...currentIds, placeId]
+            await this.#store.setPlaceIds(id, newIds)
+          }
+        }
+        await this.#clearSelection()
+      }
+
+      const actionCloseBtn = realTarget.closest('.action-close')
+      if (actionCloseBtn) {
+        await this.#clearSelection()
+      }
     })
+  }
+
+  async #clearSelection() {
+    this.#selectedIds = []
+    await this.#updateList()
+  }
+
+  #updateActionBar() {
+    const actionBar = this.shadowRoot.querySelector('[data-id="actionBar"]')
+    const actionCount = this.shadowRoot.querySelector('[data-id="actionCount"]')
+    const actionMarkBtn = this.shadowRoot.querySelector('[data-id="actionMarkBtn"]')
+    const actionUnmarkBtn = this.shadowRoot.querySelector('[data-id="actionUnmarkBtn"]')
+    const actionCloseBtn = this.shadowRoot.querySelector('[data-id="actionCloseBtn"]')
+    const actionPlaceDropdown = this.shadowRoot.querySelector('[data-id="actionPlaceDropdown"]')
+
+    if (!actionBar) return
+
+    if (this.#selectedIds.length > 0) {
+      actionBar.style.display = 'flex'
+      actionCount.textContent = `${this.#selectedIds.length} selected`
+      actionMarkBtn.style.display = 'inline'
+      actionUnmarkBtn.style.display = 'inline'
+      actionCloseBtn.style.display = 'inline'
+      actionPlaceDropdown.style.display = 'inline'
+      actionPlaceDropdown.classList.remove('open')
+    } else {
+      actionBar.style.display = 'none'
+    }
   }
 
   #render() {
@@ -103,7 +200,7 @@ export class PageTodo extends HTMLElement {
           margin-bottom: 20px;
           color: var(--text-primary, #333);
         }
-    .filterContainer {
+        .filterContainer {
           display: inline-flex;
           gap: 4px;
           margin: 12px auto 16px;
@@ -131,6 +228,82 @@ export class PageTodo extends HTMLElement {
           color: var(--text-header, #fff);
           box-shadow: 0 1px 4px rgba(74, 144, 217, 0.3);
         }
+        .actionBar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 12px;
+          margin: 0 auto 12px;
+          max-width: 900px;
+          width: 100%;
+          background: var(--bg-card, #fff);
+          border-radius: 6px;
+          box-shadow: var(--shadow-card, 0 1px 6px rgba(0, 0, 0, 0.08));
+          border: 1px solid var(--border-color, #ddd);
+        }
+        .actionBarLeft {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .actionCount {
+          font-size: 13px;
+          color: var(--text-muted, #888);
+          font-weight: 500;
+        }
+        .actionBtn {
+          padding: 6px 14px;
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 6px;
+          background: var(--bg-app, #f5f5f5);
+          font-size: 13px;
+          cursor: pointer;
+          color: var(--text-primary, #333);
+          transition: all 0.15s ease;
+        }
+        .actionBtn:hover {
+          background: var(--bg-card, #fff);
+          border-color: var(--accent-primary, #4a90d9);
+          color: var(--accent-primary, #4a90d9);
+        }
+        .actionPlaceDropdown {
+          position: relative;
+          display: inline-block;
+        }
+        .actionPlaceMenu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          margin-top: 4px;
+          background: var(--bg-card, #fff);
+          border: 1px solid var(--border-color, #ddd);
+          border-radius: 6px;
+          box-shadow: var(--shadow-card, 0 2px 12px rgba(0, 0, 0, 0.1));
+          padding: 4px 0;
+          min-width: 180px;
+          z-index: 200;
+          display: none;
+        }
+        .actionPlaceDropdown.open .actionPlaceMenu {
+          display: block;
+        }
+        .actionPlaceOption {
+          padding: 8px 12px;
+          font-size: 13px;
+          cursor: pointer;
+          color: var(--text-primary, #333);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .actionPlaceOption:hover {
+          background: var(--bg-app, #f5f5f5);
+        }
+        .actionPlaceOption.selected::before {
+          content: '\\2713';
+          color: var(--accent-primary, #4a90d9);
+          font-size: 12px;
+        }
         .footer {
           display: flex;
           justify-content: space-between;
@@ -155,6 +328,22 @@ export class PageTodo extends HTMLElement {
           <button data-filter="active" class="${this.#filter === 'active' ? 'active' : ''}">Active</button>
           <button data-filter="completed" class="${this.#filter === 'completed' ? 'active' : ''}">Completed</button>
         </div>
+        <div class="actionBar" data-id="actionBar">
+          <div class="actionBarLeft">
+            <span class="actionCount" data-id="actionCount"></span>
+            <button class="actionBtn action-mark-complete" data-id="actionMarkBtn" style="display:none;">Mark Complete</button>
+            <button class="actionBtn action-unmark-complete" data-id="actionUnmarkBtn" style="display:none;">Mark Incomplete</button>
+            <div class="actionPlaceDropdown" data-id="actionPlaceDropdown" style="display:none;">
+              <button class="actionBtn">Add to Place</button>
+              <div class="actionPlaceMenu" data-id="actionPlaceMenu">
+                ${this.#places.map(p =>
+                  `<div class="actionPlaceOption" data-id="actionPlace-${p.id}" data-place-id="${p.id}">${p.name}</div>`
+                ).join('')}
+              </div>
+            </div>
+          </div>
+          <button class="actionBtn action-close" data-id="actionCloseBtn" style="display:none;">Clear Selection</button>
+        </div>
         <todo-list filter="${this.#filter}" todos='${JSON.stringify(todos)}' places='${JSON.stringify(this.#places)}'></todo-list>
         <div class="footer" data-id="footer">
           <span class="item-count" data-id="itemCount"></span>
@@ -175,6 +364,7 @@ export class PageTodo extends HTMLElement {
       list.updatePlaces(this.#places)
     }
     this.#populateFooter()
+    this.#updateActionBar()
   }
 
   #populateFooter() {

@@ -19,7 +19,7 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
           margin-bottom: 20px;
           color: var(--text-primary, #333);
         }
-    .filterContainer {
+        .filterContainer {
           display: inline-flex;
           gap: 4px;
           margin: 12px auto 16px;
@@ -47,6 +47,82 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
           color: var(--text-header, #fff);
           box-shadow: 0 1px 4px rgba(74, 144, 217, 0.3);
         }
+        .actionBar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 12px;
+          margin: 0 auto 12px;
+          max-width: 900px;
+          width: 100%;
+          background: var(--bg-card, #fff);
+          border-radius: 6px;
+          box-shadow: var(--shadow-card, 0 1px 6px rgba(0, 0, 0, 0.08));
+          border: 1px solid var(--border-color, #ddd);
+        }
+        .actionBarLeft {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .actionCount {
+          font-size: 13px;
+          color: var(--text-muted, #888);
+          font-weight: 500;
+        }
+        .actionBtn {
+          padding: 6px 14px;
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 6px;
+          background: var(--bg-app, #f5f5f5);
+          font-size: 13px;
+          cursor: pointer;
+          color: var(--text-primary, #333);
+          transition: all 0.15s ease;
+        }
+        .actionBtn:hover {
+          background: var(--bg-card, #fff);
+          border-color: var(--accent-primary, #4a90d9);
+          color: var(--accent-primary, #4a90d9);
+        }
+        .actionPlaceDropdown {
+          position: relative;
+          display: inline-block;
+        }
+        .actionPlaceMenu {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          margin-top: 4px;
+          background: var(--bg-card, #fff);
+          border: 1px solid var(--border-color, #ddd);
+          border-radius: 6px;
+          box-shadow: var(--shadow-card, 0 2px 12px rgba(0, 0, 0, 0.1));
+          padding: 4px 0;
+          min-width: 180px;
+          z-index: 200;
+          display: none;
+        }
+        .actionPlaceDropdown.open .actionPlaceMenu {
+          display: block;
+        }
+        .actionPlaceOption {
+          padding: 8px 12px;
+          font-size: 13px;
+          cursor: pointer;
+          color: var(--text-primary, #333);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .actionPlaceOption:hover {
+          background: var(--bg-app, #f5f5f5);
+        }
+        .actionPlaceOption.selected::before {
+          content: '\\2713';
+          color: var(--accent-primary, #4a90d9);
+          font-size: 12px;
+        }
         .footer {
           display: flex;
           justify-content: space-between;
@@ -70,6 +146,20 @@ exports[`PageTodo > snapshot matches shadow DOM structure 1`] = `
           <button data-filter="all" class="active">All</button>
           <button data-filter="active" class="">Active</button>
           <button data-filter="completed" class="">Completed</button>
+        </div>
+        <div class="actionBar" data-id="actionBar">
+          <div class="actionBarLeft">
+            <span class="actionCount" data-id="actionCount"></span>
+            <button class="actionBtn action-mark-complete" data-id="actionMarkBtn" style="display:none;">Mark Complete</button>
+            <button class="actionBtn action-unmark-complete" data-id="actionUnmarkBtn" style="display:none;">Mark Incomplete</button>
+            <div class="actionPlaceDropdown" data-id="actionPlaceDropdown" style="display:none;">
+              <button class="actionBtn">Add to Place</button>
+              <div class="actionPlaceMenu" data-id="actionPlaceMenu">
+                
+              </div>
+            </div>
+          </div>
+          <button class="actionBtn action-close" data-id="actionCloseBtn" style="display:none;">Clear Selection</button>
         </div>
         <todo-list filter="all" todos="[]" places="[]"></todo-list>
         <div class="footer" data-id="footer">
