@@ -22,10 +22,31 @@ function filterTodos(filter, todos) {
 
 export class TodoList extends HTMLElement {
   #places = []
+  #selectedIds = new Set()
 
   constructor() {
     super()
     this.#attachShadow()
+    this.addEventListener('select', (e) => {
+      e.stopPropagation()
+      const { id, selected } = e.detail
+      if (selected) {
+        this.#selectedIds.add(id)
+      } else {
+        this.#selectedIds.delete(id)
+      }
+      this.#updateSelectedAttributes()
+      this.dispatchEvent(
+        new CustomEvent('selection-change', {
+          detail: { selectedIds: Array.from(this.#selectedIds) },
+          bubbles: true,
+          composed: true,
+        })
+      )
+    })
+    this.addEventListener('place-change', (e) => {
+      e.stopPropagation()
+    })
   }
 
   connectedCallback() {
@@ -33,7 +54,7 @@ export class TodoList extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['filter', 'places']
+    return ['filter', 'places', 'todos']
   }
 
   attributeChangedCallback() {
@@ -44,12 +65,6 @@ export class TodoList extends HTMLElement {
 
   #attachShadow() {
     this.attachShadow({ mode: 'open' })
-  }
-
-  #getPlaceName(placeId) {
-    if (!placeId) return ''
-    const place = this.#places.find((p) => p.id === placeId)
-    return place ? place.name : ''
   }
 
   #render() {
@@ -77,16 +92,27 @@ export class TodoList extends HTMLElement {
       const item = document.createElement('todo-item')
       item.setAttribute('id', String(todo.id))
       item.setAttribute('title', todo.title)
+      item.setAttribute('description', todo.description || '')
       item.setAttribute('completed', String(todo.completed))
-      item.setAttribute('place-name', this.#getPlaceName(todo.placeId))
+      item.setAttribute('place-ids', JSON.stringify(todo.placeIds || []))
+      item.setAttribute('places', JSON.stringify(places))
+      item.setAttribute('selected', this.#selectedIds.has(todo.id) ? 'true' : 'false')
 
       this.list.appendChild(item)
     }
   }
 
+  #updateSelectedAttributes() {
+    const items = this.shadowRoot.querySelectorAll('todo-item')
+    for (const item of items) {
+      const id = item.getAttribute('id')
+      item.setAttribute('selected', this.#selectedIds.has(id) ? 'true' : 'false')
+    }
+  }
+
   /**
    * Updates todos and re-renders.
-   * @param {Array<{id: string, title: string, completed: boolean}>} todos
+   * @param {Array<{id: string, title: string, completed: boolean, placeIds: string[]}>} todos
    */
   update(todos) {
     this.setAttribute('todos', JSON.stringify(todos))
@@ -100,6 +126,14 @@ export class TodoList extends HTMLElement {
   updatePlaces(places) {
     this.#places = places
     this.#render()
+  }
+
+  /**
+   * Returns the current set of selected todo IDs.
+   * @returns {string[]}
+   */
+  getSelectedIds() {
+    return Array.from(this.#selectedIds)
   }
 }
 

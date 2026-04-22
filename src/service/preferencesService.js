@@ -9,7 +9,7 @@ export const preferencesService = {
    * @returns {Promise<{clientStorageEnabled: boolean, serverStorageEnabled: boolean, createdAt: string, updatedAt: string}>}
    */
   async getPreferences() {
-    const res = await fetch(`${API_BASE}/preferences`)
+    const res = await fetch(`${API_BASE}/preferences`, { credentials: 'include' })
     if (!res.ok) throw new Error(`Failed to fetch preferences: ${res.status}`)
     return res.json()
   },
@@ -22,6 +22,7 @@ export const preferencesService = {
   async updatePreferences(partial) {
     const res = await fetch(`${API_BASE}/preferences`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(partial),
     })

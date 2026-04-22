@@ -38,6 +38,27 @@ exports[`TodoInput > matches shadow DOM snapshot 1`] = `
         .addBtn:hover {
           background: var(--bg-btn-primary-hover, #357abd);
         }
+        .descriptionRow {
+          display: flex;
+          gap: 8px;
+          align-items: flex-start;
+        }
+        .descriptionRow textarea {
+          flex: 1;
+          padding: 8px 12px;
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 6px;
+          font-size: 13px;
+          font-family: inherit;
+          outline: none;
+          resize: vertical;
+          min-height: 60px;
+          max-height: 200px;
+          transition: border-color 0.2s;
+        }
+        .descriptionRow textarea:focus {
+          border-color: var(--accent-primary, #4a90d9);
+        }
         .placeRow {
           display: flex;
           gap: 8px;
@@ -122,6 +143,9 @@ exports[`TodoInput > matches shadow DOM snapshot 1`] = `
         <div class="inputRow">
           <input type="text" placeholder="What needs to be done?" data-id="input">
           <button class="addBtn" data-id="button">Add</button>
+        </div>
+        <div class="descriptionRow">
+          <textarea placeholder="Description (optional)" data-id="descriptionInput"></textarea>
         </div>
         <div class="placeRow">
           <div class="ddWrapper" data-id="ddWrapper">

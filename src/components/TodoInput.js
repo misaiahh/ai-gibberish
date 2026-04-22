@@ -1,6 +1,7 @@
 /**
  * @typedef {Object} TodoInput
  * @property {HTMLInputElement} input - The text input element
+ * @property {HTMLTextAreaElement} descriptionInput - The description textarea element
  * @property {HTMLButtonElement} button - The add button
  */
 
@@ -95,6 +96,27 @@ export class TodoInput extends HTMLElement {
         .addBtn:hover {
           background: var(--bg-btn-primary-hover, #357abd);
         }
+        .descriptionRow {
+          display: flex;
+          gap: 8px;
+          align-items: flex-start;
+        }
+        .descriptionRow textarea {
+          flex: 1;
+          padding: 8px 12px;
+          border: 1px solid var(--border-input, #ddd);
+          border-radius: 6px;
+          font-size: 13px;
+          font-family: inherit;
+          outline: none;
+          resize: vertical;
+          min-height: 60px;
+          max-height: 200px;
+          transition: border-color 0.2s;
+        }
+        .descriptionRow textarea:focus {
+          border-color: var(--accent-primary, #4a90d9);
+        }
         .placeRow {
           display: flex;
           gap: 8px;
@@ -180,6 +202,9 @@ export class TodoInput extends HTMLElement {
           <input type="text" placeholder="${placeholder}" data-id="input" />
           <button class="addBtn" data-id="button">Add</button>
         </div>
+        <div class="descriptionRow">
+          <textarea placeholder="Description (optional)" data-id="descriptionInput"></textarea>
+        </div>
         <div class="placeRow">
           <div class="ddWrapper" data-id="ddWrapper">
             <div class="ddTrigger" data-id="ddTrigger">${triggerText}</div>
@@ -194,6 +219,7 @@ export class TodoInput extends HTMLElement {
     `
 
     this.input = this.shadowRoot.querySelector('[data-id="input"]')
+    this.descriptionInput = this.shadowRoot.querySelector('[data-id="descriptionInput"]')
     this.button = this.shadowRoot.querySelector('[data-id="button"]')
     this.ddWrapper = this.shadowRoot.querySelector('[data-id="ddWrapper"]')
     this.ddTrigger = this.shadowRoot.querySelector('[data-id="ddTrigger"]')
@@ -252,10 +278,11 @@ export class TodoInput extends HTMLElement {
 
     this.#text = title
     this.input.value = ''
+    const description = this.descriptionInput?.value || ''
     const placeId = this.#selectedPlaceId
     this.dispatchEvent(
       new CustomEvent('add', {
-        detail: { title, placeId },
+        detail: { title, description, placeId },
         bubbles: true,
         composed: true,
       })

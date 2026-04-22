@@ -1,4 +1,5 @@
 import { createRouter } from '../../src/utils/router.js'
+import { resetSessionState } from '../../src/service/apiService.js'
 import '../../src/components/NavLink.js'
 import '../../src/components/AppShell.js'
 import '../../src/pages/todo/PageTodo.js'
@@ -20,6 +21,7 @@ describe('AppShell + router fetch count on initial load', () => {
     // Create a fresh router to avoid singleton state bleeding
     router = createRouter()
 
+    resetSessionState()
     window.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
@@ -34,7 +36,7 @@ describe('AppShell + router fetch count on initial load', () => {
     vi.restoreAllMocks()
   })
 
-  it('should call GET /api/todos and /api/places once during initial page load', async () => {
+  it('should call GET /api/session, /api/todos and /api/places once during initial page load', async () => {
     // Simulate the full init sequence from main.js
 
     // Step 1: <app-shell> is in index.html
@@ -61,11 +63,13 @@ describe('AppShell + router fetch count on initial load', () => {
     console.log('fetch call count:', callCount)
     console.log('fetch URLs:', urls)
 
-    expect(callCount).toBe(2)
-    expect(urls).toEqual(['/api/todos', '/api/places'])
+    expect(callCount).toBe(3)
+    expect(urls).toContain('/api/session')
+    expect(urls).toContain('/api/todos')
+    expect(urls).toContain('/api/places')
   })
 
-  it('should call GET /api/todos and /api/places once per navigation to home', async () => {
+  it('should call GET /api/session, /api/todos and /api/places once per navigation to home', async () => {
     const shell = document.createElement('app-shell')
     container.appendChild(shell)
 
@@ -80,7 +84,7 @@ describe('AppShell + router fetch count on initial load', () => {
     router.start()
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    expect(window.fetch).toHaveBeenCalledTimes(2)
+    expect(window.fetch).toHaveBeenCalledTimes(3)
 
     // Navigate to about
     router.navigate('/about')
@@ -95,7 +99,9 @@ describe('AppShell + router fetch count on initial load', () => {
     console.log('fetch call count after / -> /about -> /:', callCount)
     console.log('fetch URLs:', urls)
 
-    // Should be exactly 4: 2 on initial load, 2 on returning to home
-    expect(callCount).toBe(4)
+    // First load: 3 calls (session + todos + places)
+    // Second load: 2 calls (no session, already initialized + todos + places)
+    // Total: 5
+    expect(callCount).toBe(5)
   })
 })

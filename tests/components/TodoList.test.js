@@ -167,4 +167,106 @@ describe('TodoList', () => {
     const items = el.shadowRoot.querySelectorAll('todo-item')
     expect(items).toHaveLength(0)
   })
+
+  it('dispatches selection-change when select event fires', () => {
+    const todos = [
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: false },
+    ]
+    const el = document.createElement('todo-list')
+    el.setAttribute('todos', JSON.stringify(todos))
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    el.addEventListener('selection-change', handler)
+
+    el.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { id: '1', selected: true },
+        bubbles: true,
+        composed: true,
+      })
+    )
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.selectedIds).toEqual(['1'])
+  })
+
+  it('tracks multiple selections', () => {
+    const todos = [
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: false },
+    ]
+    const el = document.createElement('todo-list')
+    el.setAttribute('todos', JSON.stringify(todos))
+    container.appendChild(el)
+
+    el.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { id: '1', selected: true },
+        bubbles: true,
+        composed: true,
+      })
+    )
+
+    el.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { id: '2', selected: true },
+        bubbles: true,
+        composed: true,
+      })
+    )
+
+    expect(el.getSelectedIds()).toEqual(['1', '2'])
+  })
+
+  it('removes deselected items from selection', () => {
+    const todos = [
+      { id: '1', title: 'Buy milk', completed: false },
+      { id: '2', title: 'Walk dog', completed: false },
+    ]
+    const el = document.createElement('todo-list')
+    el.setAttribute('todos', JSON.stringify(todos))
+    container.appendChild(el)
+
+    el.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { id: '1', selected: true },
+        bubbles: true,
+        composed: true,
+      })
+    )
+
+    el.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { id: '1', selected: false },
+        bubbles: true,
+        composed: true,
+      })
+    )
+
+    expect(el.getSelectedIds()).toEqual([])
+  })
+
+  it('passes selected attribute to todo items', () => {
+    const todos = [
+      { id: '1', title: 'Buy milk', completed: false },
+    ]
+    const el = document.createElement('todo-list')
+    el.setAttribute('todos', JSON.stringify(todos))
+    container.appendChild(el)
+
+    const item = el.shadowRoot.querySelector('todo-item')
+    expect(item.getAttribute('selected')).toBe('false')
+
+    el.dispatchEvent(
+      new CustomEvent('select', {
+        detail: { id: '1', selected: true },
+        bubbles: true,
+        composed: true,
+      })
+    )
+
+    expect(item.getAttribute('selected')).toBe('true')
+  })
 })

@@ -54,10 +54,11 @@ describe('TodoItem', () => {
     expect(textSpan.classList.contains('completed')).toBe(false)
   })
 
-  it('checks checkbox when completed', () => {
+  it('checks checkbox when selected', () => {
     const el = document.createElement('todo-item')
     el.setAttribute('title', 'Buy milk')
-    el.setAttribute('completed', 'true')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('selected', 'true')
     container.appendChild(el)
 
     const checkbox = el.shadowRoot.querySelector('input[type="checkbox"]')
@@ -74,7 +75,41 @@ describe('TodoItem', () => {
     expect(deleteBtn.textContent).toBe('\u00d7')
   })
 
-  it('dispatches toggle event on checkbox change', () => {
+  it('dispatches select event on checkbox change', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    el.addEventListener('select', handler)
+
+    const checkbox = el.shadowRoot.querySelector('input[type="checkbox"]')
+    checkbox.click()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.id).toBe('abc123')
+    expect(handler.mock.calls[0][0].detail.selected).toBe(true)
+  })
+
+  it('dispatches select event with selected=false when unchecked', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('selected', 'true')
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    el.addEventListener('select', handler)
+
+    const checkbox = el.shadowRoot.querySelector('input[type="checkbox"]')
+    checkbox.click()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.selected).toBe(false)
+  })
+
+  it('dispatches toggle event on double-click', () => {
     const el = document.createElement('todo-item')
     el.setAttribute('id', 'abc123')
     el.setAttribute('title', 'Buy milk')
@@ -83,8 +118,8 @@ describe('TodoItem', () => {
     const handler = vi.fn()
     el.addEventListener('toggle', handler)
 
-    const checkbox = el.shadowRoot.querySelector('input[type="checkbox"]')
-    checkbox.click()
+    const textSpan = el.shadowRoot.querySelector('[data-id="todoText"]')
+    textSpan.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
 
     expect(handler).toHaveBeenCalledTimes(1)
     expect(handler.mock.calls[0][0].detail.id).toBe('abc123')
@@ -123,73 +158,143 @@ describe('TodoItem', () => {
     expect(textSpan.classList.contains('completed')).toBe(true)
   })
 
-  it('matches shadow DOM snapshot', () => {
+  it('shows place names when places are assigned', () => {
+    const places = [{ id: 'p1', name: 'Home' }, { id: 'p2', name: 'Office' }]
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('place-ids', JSON.stringify(['p1', 'p2']))
+    el.setAttribute('places', JSON.stringify(places))
+    container.appendChild(el)
+
+    const placeNames = el.shadowRoot.querySelectorAll('[data-id="placeNames"] .placeName')
+    expect(placeNames).toHaveLength(2)
+    expect(placeNames[0].textContent).toBe('Home')
+    expect(placeNames[1].textContent).toBe('Office')
+  })
+
+  it('does not show place names when no places assigned', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('place-ids', '[]')
+    container.appendChild(el)
+
+    const placeNames = el.shadowRoot.querySelector('[data-id="placeNames"]')
+    expect(placeNames.textContent.trim()).toBe('')
+  })
+
+  it('shows description when provided', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('description', 'Need to buy organic milk')
+    container.appendChild(el)
+
+    const descContent = el.shadowRoot.querySelector('[data-id="descriptionContent"]')
+    expect(descContent).toBeTruthy()
+    expect(descContent.textContent).toBe('Need to buy organic milk')
+  })
+
+  it('hides description section when no description', () => {
     const el = document.createElement('todo-item')
     el.setAttribute('id', 'abc123')
     el.setAttribute('title', 'Buy milk')
     el.setAttribute('completed', 'false')
     container.appendChild(el)
 
-    expect(el.shadowRoot.innerHTML).toMatchInlineSnapshot(`
-      "
-            <style>
-              .todoItem {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px 8px;
-                border-bottom: 1px solid var(--border-color, #f0f0f0);
-              }
-              .todoItem:last-child {
-                border-bottom: none;
-              }
-              .todoItem input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                cursor: pointer;
-                accent-color: var(--accent-primary, #4a90d9);
-              }
-              .todoContent {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
-              }
-              .todoText {
-                font-size: 14px;
-                color: var(--text-primary, #333);
-              }
-              .todoText.completed {
-                text-decoration: line-through;
-                color: var(--text-completed, #aaa);
-              }
-              .placeName {
-                font-size: 12px;
-                color: var(--text-muted, #888);
-              }
-              .deleteBtn {
-                background: none;
-                border: none;
-                color: var(--bg-btn-danger, #e74c3c);
-                font-size: 18px;
-                cursor: pointer;
-                padding: 0 4px;
-                opacity: 0.5;
-                transition: opacity 0.2s;
-              }
-              .deleteBtn:hover {
-                opacity: 1;
-              }
-            </style>
-            <label class="todoItem">
-              <input type="checkbox" data-id="checkbox">
-              <div class="todoContent">
-                <span class="todoText " data-id="todoText">Buy milk</span>
-                
-              </div>
-              <button class="deleteBtn" data-id="deleteBtn" title="Delete">×</button>
-            </label>
-          "
-    `)
+    const descSection = el.shadowRoot.querySelector('[data-id="descriptionSection"]')
+    expect(descSection).toBeFalsy()
+  })
+
+  it('toggles description visibility on toggle button click', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('description', 'Need to buy organic milk')
+    container.appendChild(el)
+
+    const descContent = el.shadowRoot.querySelector('[data-id="descriptionContent"]')
+    const descToggle = el.shadowRoot.querySelector('[data-id="descriptionToggle"]')
+    expect(descContent.style.display).toBe('none')
+
+    descToggle.click()
+    expect(descContent.style.display).toBe('block')
+    expect(descToggle.textContent).toBe('▶')
+
+    descToggle.click()
+    expect(descContent.style.display).toBe('none')
+    expect(descToggle.textContent).toBe('▼')
+  })
+
+  it('dispatches place-change with placeIds array when toggling a place', () => {
+    const places = [{ id: 'p1', name: 'Home' }, { id: 'p2', name: 'Office' }]
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('place-ids', JSON.stringify(['p1']))
+    el.setAttribute('places', JSON.stringify(places))
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    el.addEventListener('place-change', handler)
+
+    el.placeBtn.click()
+    const option = el.shadowRoot.querySelector('[data-id="place-p2"]')
+    option.click()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.id).toBe('abc123')
+    expect(handler.mock.calls[0][0].detail.placeIds).toEqual(['p1', 'p2'])
+  })
+
+  it('removes place from placeIds when toggling off', () => {
+    const places = [{ id: 'p1', name: 'Home' }, { id: 'p2', name: 'Office' }]
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('place-ids', JSON.stringify(['p1', 'p2']))
+    el.setAttribute('places', JSON.stringify(places))
+    container.appendChild(el)
+
+    const handler = vi.fn()
+    el.addEventListener('place-change', handler)
+
+    el.placeBtn.click()
+    const option = el.shadowRoot.querySelector('[data-id="place-p1"]')
+    option.click()
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(handler.mock.calls[0][0].detail.placeIds).toEqual(['p2'])
+  })
+
+  it('applies selected class when selected', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('selected', 'true')
+    container.appendChild(el)
+
+    const label = el.shadowRoot.querySelector('.todoItem')
+    expect(label.classList.contains('selected')).toBe(true)
+  })
+
+  it('does not apply selected class when not selected', () => {
+    const el = document.createElement('todo-item')
+    el.setAttribute('id', 'abc123')
+    el.setAttribute('title', 'Buy milk')
+    el.setAttribute('completed', 'false')
+    el.setAttribute('selected', 'false')
+    container.appendChild(el)
+
+    const label = el.shadowRoot.querySelector('.todoItem')
+    expect(label.classList.contains('selected')).toBe(false)
   })
 })
